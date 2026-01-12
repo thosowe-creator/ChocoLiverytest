@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Choco Livery</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Montserrat"', '"Noto Sans KR"', 'sans-serif'], 
+                        logo: ['"Montserrat"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            black: '#1a1a1a',
+                            gray: '#888888',
+                            500: '#3b82f6',
+                            fenix: '#e11d48',
+                            pmdg: '#0284c7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .filter-tab {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #1a1a1a;
+            transition: width 0.3s ease;
+        }
+        .filter-tab.active {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        .filter-tab.active::after {
+            width: 100%;
+        }
+        /* New Sim Tab Styles */
+        .sim-tab {
+            padding: 8px 24px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid #e5e7eb;
+            color: #9ca3af;
+        }
+        .sim-tab.active {
+            background-color: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+        .card-item {
+            transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .card-item:hover {
+            transform: translateY(-4px);
+        }
+        .modal-enter {
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .input-sharp {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #f9fafb;
+        }
+        .input-sharp:focus {
+            border-color: #1a1a1a;
+            background: white;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aaa; 
+        }
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            background: #1a1a1a;
+            color: white;
+            padding: 14px 20px;
+            font-family: 'Montserrat', '"Noto Sans KR"', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 350px;
+            animation: slideInToast 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border-radius: 4px;
+        }
+        .toast.error { border-left: 3px solid #e11d48; }
+        .toast.success { border-left: 3px solid #3b82f6; }
+        .toast.normal { border-left: 3px solid #9ca3af; }
+        @keyframes slideInToast {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOutToast {
+            to { opacity: 0; transform: translateY(10px); }
+        }
+        .req-item.completed {
+            opacity: 0.5;
+            background-color: #f9fafb;
+        }
+        .req-item.completed h4 {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .admin-tab-btn {
+            padding: 8px 16px;
+            border-bottom: 2px solid transparent;
+            color: #888;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .admin-tab-btn.active {
+            border-bottom-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+        /* Lang Switcher */
+        .lang-btn {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .lang-btn.active {
+            color: #1a1a1a;
+        }
+        .lang-divider {
+            color: #eee;
+            font-size: 0.75rem;
+            margin: 0 4px;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col pt-24 selection:bg-black selection:text-white">
+
+    <!-- Navbar -->
+    <nav class="glass-nav fixed w-full z-50 top-0 left-0 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                    <span class="font-logo font-light text-2xl tracking-[0.2em] text-gray-400 group-hover:text-black transition-colors duration-500">
+                        CHOCO<span class="font-medium text-black">LIVERY</span>
+                    </span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <!-- Language Switcher -->
+                    <div class="flex items-center font-logo">
+                        <button onclick="setLanguage('ko')" id="lang-ko" class="lang-btn">KO</button>
+                        <span class="lang-divider">|</span>
+                        <button onclick="setLanguage('en')" id="lang-en" class="lang-btn active">EN</button>
+                    </div>
+                    <!-- Changed onclick to openRequestNotice -->
+                    <button onclick="openRequestNotice()" class="font-logo text-xs font-bold tracking-widest text-black border border-black px-4 py-2 hover:bg-black hover:text-white transition-colors uppercase" data-i18n="nav_request">
+                        Request Livery
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-6 lg:px-8 pb-20 w-full" id="featured">
+        <!-- New Simulator Toggles -->
+        <div class="flex justify-center mb-8 gap-3 font-logo">
+            <button onclick="switchSim('msfs2020')" id="sim-2020" class="sim-tab">MSFS 2020</button>
+            <button onclick="switchSim('msfs2024')" id="sim-2024" class="sim-tab active">MSFS 2024</button>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 border-b border-gray-100 pb-4">
+            <div class="flex gap-8">
+                <button onclick="filterItems('all')" id="btn-all" class="filter-tab active font-logo text-sm tracking-widest text-gray-400 hover:text-black uppercase" data-i18n="filter_all">
+                    ALL
+                </button>
+                <button onclick="filterItems('pmdg738')" id="btn-pmdg738738" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-pmdg uppercase">
+                    PMDG 738
+                </button>
+                <button onclick="filterItems('fenixA320')" id="btn-fenixA320" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
+                    FENIX A320
+                </button>
+                <button onclick="filterItems('fenixA321')" id="btn-fenixA321A321" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
+                    FENIX A321
+                </button>
+            </div>
+        </div>
+
+        <div id="liveryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+            <!-- Loading State -->
+            <div class="col-span-full text-center py-20 text-gray-400 text-sm font-logo tracking-widest animate-pulse" data-i18n="loading_data">LOADING DATA...</div>
+        </div>
+
+        <div id="emptyState" class="hidden py-32 text-center w-full">
+            <div class="text-gray-300 mb-4 text-6xl font-thin">/</div>
+            <p class="font-logo text-gray-400 tracking-widest text-sm uppercase" data-i18n="no_livery">No Livery Found</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-100 mt-auto bg-white">
+        <div class="max-w-7xl mx-auto py-10 px-6 lg:px-8 flex justify-end items-center gap-4">
+            <button onclick="openAdminLogin()" class="text-gray-300 hover:text-black transition-colors" title="Admin Access">
+                <i class="fa-solid fa-lock text-xs"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modals -->
+
+    <!-- 1-A. Request Notice Modal (NEW) -->
+    <div id="requestNoticeModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-white/80 backdrop-blur-md px-4 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-8 modal-enter relative">
+            <button onclick="closeModal('requestNoticeModal')" class="absolute top-6 right-6 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="mb-6"><h3 class="font-logo font-light text-xl text-black mb-2" data-i18n="modal_req_notice_title">NOTICE</h3><div class="h-0.5 w-8 bg-black"></div></div>
+
+            <!-- Request Status (User View) -->
+            <div class="mb-6 border border-gray-100 rounded-md p-4 bg-gray-50">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <h4 class="font-logo text-xs font-bold tracking-widest text-gray-600 uppercase" data-i18n="req_status_title">REQUEST STATUS</h4>
+                    <div id="requestStatusTabs" class="flex flex-wrap gap-2 justify-end"></div>
+                </div>
+                <div id="requestStatusPreview" class="space-y-2 max-h-72 overflow-y-auto text-xs text-gray-600">
+                    <div class="text-gray-400" data-i18n="req_status_loading">Loading request status...</div>
+                </div>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <p class="text-sm text-gray-600 font-light leading-relaxed" data-i18n="modal_req_notice_desc">
+                    <!-- Text injected by JS -->
+                </p>
+            </div>
+            <button onclick="proceedToRequest()" class="w-full bg-black text-white h-12 hover:bg-gray-800 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-2">
+                <span data-i18n="btn_understand">I Understand</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 1. Download Warning Modal -->
+    <div id="downloadModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-white/80 backdrop-blur-md px-4 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-8 md:p-10 modal-enter relative">
+            <button onclick="closeModal('downloadModal')" class="absolute top-6 right-6 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="mb-8"><h3 class="font-logo font-light text-2xl text-black mb-2" data-i18n="modal_download_title">DOWNLOAD</h3><div class="h-0.5 w-12 bg-black"></div></div>
+            <div class="space-y-6 mb-10">
+                <div class="space-y-2">
+                    <p class="font-bold text-sm text-red-600 uppercase tracking-wide flex items-center gap-2"><i class="fa-solid fa-ban"></i> <span data-i18n="modal_warn_title">Warning</span></p>
+                    <p class="text-sm text-gray-600 font-light leading-relaxed" data-i18n="modal_warn_desc">
+                        Unauthorized modification and redistribution of this file are <span class="font-medium text-black">strictly prohibited</span>.<br>
+                        Please use it for personal use only.
+                    </p>
+                </div>
+                <div class="space-y-2 pt-4 border-t border-gray-100">
+                    <p class="font-bold text-sm text-black uppercase tracking-wide flex items-center gap-2"><i class="fa-solid fa-info-circle text-gray-400"></i> <span data-i18n="modal_install_title">How to Install</span></p>
+                    <!-- Default Install Text (Dynamic) -->
+                    <p class="text-sm text-gray-600 font-light leading-relaxed" data-i18n="modal_install_desc">
+                        1. Download and unzip the file.<br>
+                        2. Place the folder into your <span class="font-mono text-xs bg-gray-100 px-1 py-0.5 text-black">Community</span> folder.
+                    </p>
+                </div>
+            </div>
+            <button onclick="confirmDownload()" class="w-full bg-black text-white h-12 hover:bg-gray-800 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-3 group">
+                <span data-i18n="btn_agree_download">Agree & Download</span> <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. Request Modal -->
+    <div id="requestModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-white/80 backdrop-blur-md px-4 py-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-8 md:p-10 modal-enter relative my-auto">
+            <button onclick="closeModal('requestModal')" class="absolute top-6 right-6 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="mb-2"><h3 class="font-logo font-light text-2xl text-black mb-2" data-i18n="modal_request_title">REQUEST LIVERY</h3><div class="h-0.5 w-12 bg-black"></div></div>
+            <p class="text-xs text-red-500 text-right mb-6 font-bold" data-i18n="req_required_hint">* Indicates required field</p>
+            <div class="space-y-4 mb-8">
+                <!-- Added Simulator Version as Item #1 -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block"><span data-i18n="req_label_sim">1. Simulator Version</span> <span class="text-red-500">*</span></label>
+                    <select id="reqSim" class="input-sharp">
+                        <option value="msfs2024">MSFS 2024</option>
+                        <option value="msfs2020">MSFS 2020</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">
+                        <span data-i18n="req_label_category">2. Aircraft Category</span> <span class="text-red-500">*</span>
+                    </label>
+                    <select id="reqCategory" class="input-sharp">
+                        <option value="pmdg_738" data-i18n="opt_pmdg_738">PMDG 738</option>
+                        <option value="fenix_a320" data-i18n="opt_fenix_a320">FENIX A320</option>
+                        <option value="fenix_a321" data-i18n="opt_fenix_a321">FENIX A321</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">
+                        <span data-i18n="req_label_config">Aircraft Configuration (Optional)</span>
+                    </label>
+                    <input type="text" id="reqAircraft" class="input-sharp" placeholder="">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block"><span data-i18n="req_label_airline">3. Airline Name</span> <span class="text-red-500">*</span></label>
+                    <input type="text" id="reqAirline" class="input-sharp" placeholder="ex) Jeju Air">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block"><span data-i18n="req_label_reg">4. Aircraft Reg.</span> <span class="text-red-500">*</span></label>
+                    <input type="text" id="reqReg" class="input-sharp" placeholder="ex) HL8089">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block"><span data-i18n="req_label_images">5. Reference Images (Min 1, Max 5)</span> <span class="text-red-500">*</span></label>
+                    <div class="space-y-2">
+                        <input type="text" class="input-sharp req-img-input" placeholder="Link 1 (Required) *">
+                        <input type="text" class="input-sharp req-img-input" placeholder="Link 2 (Optional)">
+                        <input type="text" class="input-sharp req-img-input" placeholder="Link 3 (Optional)">
+                        <input type="text" class="input-sharp req-img-input" placeholder="Link 4 (Optional)">
+                        <input type="text" class="input-sharp req-img-input" placeholder="Link 5 (Optional)">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block" data-i18n="req_label_desc">6. Details</label>
+                    <textarea id="reqDesc" class="input-sharp h-24 resize-none" placeholder="Any specific details or requests?"></textarea>
+                </div>
+            </div>
+            <button onclick="submitRequest()" id="submitBtn" class="w-full bg-black text-white h-12 hover:bg-gray-800 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase" data-i18n="btn_submit_request">Submit Request</button>
+        </div>
+    </div>
+
+    <!-- 3. Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-white/95 backdrop-blur-md px-4">
+        <div class="bg-white w-full max-w-sm shadow-xl border border-gray-100 p-8 modal-enter relative">
+            <button onclick="closeModal('adminLoginModal')" class="absolute top-6 right-6 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-user-secret text-2xl mb-3 text-black"></i>
+                <h3 class="font-logo font-bold text-xl text-black" data-i18n="modal_admin_title">ADMIN ACCESS</h3>
+            </div>
+            <div class="space-y-4 mb-6">
+                <input type="email" id="adminEmail" class="input-sharp" placeholder="Admin Email">
+                <input type="password" id="adminPw" class="input-sharp" placeholder="Password">
+            </div>
+            <button onclick="loginAdmin()" class="w-full bg-black text-white h-10 hover:bg-gray-800 font-logo text-xs font-bold tracking-widest uppercase" data-i18n="btn_login">Login</button>
+        </div>
+    </div>
+
+    <!-- 4. Admin Dashboard Modal -->
+    <div id="adminDashModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-gray-50/90 backdrop-blur-md px-4 py-10">
+        <div class="bg-white w-full max-w-4xl h-full max-h-[80vh] shadow-2xl border border-gray-200 rounded-lg flex flex-col modal-enter relative overflow-hidden">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                <div class="flex items-center gap-6">
+                    <h3 class="font-logo font-bold text-lg text-black" data-i18n="dash_title">ADMIN DASHBOARD</h3>
+                    <div class="flex gap-4">
+                        <button onclick="switchAdminTab('requests')" id="tab-requests" class="admin-tab-btn active" data-i18n="dash_tab_req">Requests</button>
+                        <button onclick="switchAdminTab('liveries')" id="tab-liveries" class="admin-tab-btn" data-i18n="dash_tab_liv">Liveries</button>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="logoutAdmin()" class="text-xs font-bold text-red-500 hover:text-red-700 uppercase" data-i18n="btn_logout">Logout</button>
+                    <button onclick="closeModal('adminDashModal')" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="flex-grow overflow-y-auto p-6 bg-gray-50 relative">
+                <!-- Tab: Requests -->
+                <div id="view-requests">
+                    <div id="requestListContainer"><div class="text-center text-gray-400 py-10 text-sm">Loading requests...</div></div>
+                </div>
+
+                <!-- Tab: Liveries -->
+                <div id="view-liveries" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="font-bold text-sm text-gray-600" data-i18n="dash_manage_liv">MANAGE LIVERIES</h4>
+                        <button onclick="openUploadModal()" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded text-xs font-bold uppercase transition-colors">
+                            <i class="fa-solid fa-plus mr-1"></i> <span data-i18n="btn_add_livery">Add New Livery</span>
+                        </button>
+                    </div>
+                    <div id="liveryListContainer"><div class="text-center text-gray-400 py-10 text-sm">Loading liveries...</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Upload Livery Modal -->
+    <div id="uploadModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-white/80 backdrop-blur-md px-4 py-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-8 md:p-10 modal-enter relative my-auto">
+            <button onclick="closeModal('uploadModal')" class="absolute top-6 right-6 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="mb-6"><h3 class="font-logo font-light text-2xl text-black mb-2" data-i18n="modal_upload_title">UPLOAD LIVERY</h3><div class="h-0.5 w-12 bg-black"></div></div>
+            
+            <div class="space-y-4 mb-8">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Title (e.g. Jeju Air HL8089)</label>
+                    <input type="text" id="upTitle" class="input-sharp">
+                </div>
+                <!-- ADDED: Simulator Selector -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Simulator Version</label>
+                    <select id="upSim" class="input-sharp">
+                        <option value="msfs2024">MSFS 2024</option>
+                        <option value="msfs2020">MSFS 2020</option>
+                    </select>
+                </div>
+                <!-- ADDED: Install Method Selector -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Installation Method</label>
+                    <select id="upInstallType" class="input-sharp">
+                        <option value="manual">Drag & Drop (Community Folder)</option>
+                        <option value="oc3">PMDG Operation Center 3 (.ptp)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Addon (e.g. PMDG 737-800)</label>
+                        <input type="text" id="upAddon" class="input-sharp">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Category</label>
+                        <select id="upCategory" class="input-sharp">
+                            <option value="pmdg738">PMDG 738</option>
+                            <option value="fenixA320">FENIX A320</option>
+                            <option value="fenixA321">FENIX A321</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Version (e.g. v1.0)</label>
+                    <input type="text" id="upVersion" class="input-sharp" value="v1.0">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Download Link (Google Drive)</label>
+                    <input type="text" id="upLink" class="input-sharp">
+                </div>
+                <!-- Cloudinary Upload Section -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">Image Link (Google Drive or Upload)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="upImage" class="input-sharp" placeholder="https://...">
+                        <input type="file" id="fileMain" accept="image/*" class="hidden" onchange="uploadMainImage(this)">
+                        <button onclick="document.getElementById('fileMain').click()" class="bg-gray-200 hover:bg-gray-300 px-4 rounded text-xs font-bold transition-colors" title="Upload Image"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                    </div>
+                    <p id="mainImgStatus" class="text-[10px] text-blue-500 mt-1 hidden">Uploading...</p>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1 block">More Screenshots Link (Optional)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="upMoreLink" class="input-sharp" placeholder="URL1, URL2... (Comma separated)">
+                        <input type="file" id="fileScreenshots" accept="image/*" multiple class="hidden" onchange="uploadScreenshots(this)">
+                        <button onclick="document.getElementById('fileScreenshots').click()" class="bg-gray-200 hover:bg-gray-300 px-4 rounded text-xs font-bold transition-colors" title="Upload Multiple Images"><i class="fa-solid fa-images"></i></button>
+                    </div>
+                    <p id="screenshotsStatus" class="text-[10px] text-blue-500 mt-1 hidden">Uploading...</p>
+                </div>
+            </div>
+            <button onclick="submitLivery()" id="uploadBtn" class="w-full bg-black text-white h-12 hover:bg-gray-800 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase" data-i18n="btn_upload">Upload</button>
+        </div>
+    </div>
+
+    <!-- 6. Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="fixed inset-0 z-[200] flex items-center justify-center hidden bg-black/50 backdrop-blur-sm px-4">
+        <div class="bg-white w-full max-w-sm shadow-2xl border border-gray-100 p-6 rounded-lg modal-enter relative">
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500 mb-3"></i>
+                <h3 class="font-logo font-bold text-lg text-black" data-i18n="modal_del_title">DELETE CONFIRMATION</h3>
+                <p class="text-xs text-gray-500 mt-2" data-i18n="modal_del_desc">Are you sure you want to delete this item?<br>This action cannot be undone.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeModal('deleteConfirmModal')" class="flex-1 h-10 border border-gray-300 text-gray-600 text-xs font-bold uppercase rounded hover:bg-gray-50" data-i18n="btn_cancel">Cancel</button>
+                <button onclick="confirmDeleteAction()" class="flex-1 h-10 bg-red-600 text-white text-xs font-bold uppercase rounded hover:bg-red-700" data-i18n="btn_delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Image Gallery Modal (NEW) -->
+    <div id="galleryModal" class="fixed inset-0 z-[300] flex items-center justify-center hidden bg-black/95 backdrop-blur-md transition-opacity duration-300">
+        <!-- Close Button -->
+        <button onclick="closeModal('galleryModal')" class="absolute top-6 right-6 text-white/70 hover:text-white z-50">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+        </button>
+        
+        <!-- Main Image Container -->
+        <div class="relative w-full h-full flex items-center justify-center p-4 md:p-10">
+            <img id="galleryImg" src="" class="max-w-full max-h-full object-contain shadow-2xl rounded-sm transition-transform duration-300">
+            
+            <!-- Navigation Buttons -->
+            <button onclick="prevGalleryImage()" id="btnPrev" class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-black/20 hover:bg-black/50 rounded-full w-12 h-12 flex items-center justify-center transition-all">
+                <i class="fa-solid fa-chevron-left text-xl"></i>
+            </button>
+            <button onclick="nextGalleryImage()" id="btnNext" class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-black/20 hover:bg-black/50 rounded-full w-12 h-12 flex items-center justify-center transition-all">
+                <i class="fa-solid fa-chevron-right text-xl"></i>
+            </button>
+
+            <!-- Counter -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-1 rounded-full text-xs font-logo tracking-widest backdrop-blur-sm">
+                <span id="galleryCurrent">1</span> / <span id="galleryTotal">5</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translation Data & Logic -->
+    <script>
+        // Language Data
+        const translations = {
+            en: {
+                nav_request: "Request Livery",
+                filter_all: "ALL",
+                loading_data: "LOADING DATA...",
+                no_livery: "No Livery Found",
+                
+                // Modals
+                modal_download_title: "DOWNLOAD",
+                modal_warn_title: "Warning",
+                modal_warn_desc: "Unauthorized modification and redistribution of this file are <span class='font-medium text-black'>strictly prohibited</span>.<br>Please use it for personal use only.",
+                modal_install_title: "How to Install",
+                modal_install_desc: "1. Download and unzip the file.<br>2. Place the folder into your <span class='font-mono text-xs bg-gray-100 px-1 py-0.5 text-black'>Community</span> folder.",
+                modal_install_desc_oc3: "1. Download this file.<br>2. Open <strong>PMDG Operation Center 3</strong> then Import This File.",
+                btn_agree_download: "Agree & Download",
+
+                // Request Notice (NEW)
+                modal_req_notice_title: "BEFORE REQUEST",
+                modal_req_notice_desc: "Please note that submitting a request <strong>does not guarantee</strong> its creation. We review all requests but cannot fulfill every single one.<br><br>Also, please ensure your request is based on <strong>real-world, currently active aircraft</strong>. Fictional or retired liveries might not be accepted.",
+                btn_understand: "I Understand & Continue",
+
+                modal_request_title: "REQUEST LIVERY",
+                req_required_hint: "* Indicates required field",
+                // Updated Numbering
+                req_label_sim: "1. Simulator Version",
+                req_label_aircraft: "2. Aircraft Type",
+                req_label_airline: "3. Airline Name",
+                req_label_reg: "4. Aircraft Reg.",
+                req_label_images: "5. Reference Images (Min 1, Max 5)",
+                req_label_desc: "6. Details",
+                btn_submit_request: "Submit Request",
+
+                modal_admin_title: "ADMIN ACCESS",
+                btn_login: "Login",
+
+                dash_title: "ADMIN DASHBOARD",
+                dash_tab_req: "Requests",
+                dash_tab_liv: "Liveries",
+                dash_manage_liv: "MANAGE LIVERIES",
+                btn_add_livery: "Add New Livery",
+                btn_logout: "Logout",
+
+                modal_upload_title: "UPLOAD LIVERY",
+                modal_edit_title: "EDIT LIVERY", // Added
+                btn_upload: "Upload",
+                btn_update: "Update", // Added
+                btn_edit: "Edit", // Added
+
+                modal_del_title: "DELETE CONFIRMATION",
+                modal_del_desc: "Are you sure you want to delete this item?<br>This action cannot be undone.",
+                btn_cancel: "Cancel",
+                btn_delete: "Delete",
+
+                // Dynamic Texts (Toasts & Placeholders)
+                ph_link_req: "Link 1 (Required) *",
+                ph_link_opt: "Link (Optional)",
+                ph_details: "Any specific details or requests?",
+                
+                toast_link_soon: "Link coming soon.",
+                toast_ext_link_fail: "External link not ready.",
+                toast_fill_all: "Please fill in all required fields.",
+                toast_saving: "Saving...",
+                toast_req_success: "Request submitted successfully!",
+                toast_enter_creds: "Enter email/password.",
+                toast_admin_login: "Logged in as Admin.",
+                toast_login_fail: "Login failed: ",
+                toast_logout: "Logged out.",
+                toast_miss_fields: "Missing required fields.",
+                toast_uploading: "Uploading...",
+                toast_uploaded: "Livery uploaded!",
+                toast_upload_fail: "Upload failed: ",
+                toast_deleted: "Deleted successfully.",
+                toast_delete_fail: "Delete failed: ",
+                toast_db_fail: "DB Connection Failed or Empty.",
+                toast_status_update: "Status updated.",
+                toast_update_fail: "Update failed: ",
+                
+                card_more_shots: "More Screenshots",
+                card_download: "Download"
+                ,
+                req_status_title: "REQUEST STATUS",
+                req_status_loading: "Loading request status...",
+                chip_requested: "REQUESTED",
+                chip_reviewed: "REVIEWED",
+                chip_in_progress: "IN PROGRESS",
+                chip_rejected: "REJECTED",
+                req_label_category: "2. Aircraft Category",
+                req_label_config: "Aircraft Configuration (Optional)",
+                opt_pmdg_738: "PMDG 738",
+                opt_fenix_a320: "FENIX A320",
+                opt_fenix_a321: "FENIX A321"
+                ,
+                no_requests: "No requests to show."
+
+
+            },
+            ko: {
+                nav_request: "리버리 요청",
+                filter_all: "전체",
+                loading_data: "데이터 로딩중...",
+                no_livery: "리버리가 없습니다",
+                
+                // Modals
+                modal_download_title: "다운로드",
+                modal_warn_title: "경고",
+                modal_warn_desc: "이 파일의 <span class='font-medium text-black'>무단 수정 및 재배포를 엄격히 금지</span>합니다.<br>개인적인 용도로만 사용해주시기 바랍니다.",
+                modal_install_title: "설치 방법",
+                modal_install_desc: "1. 파일을 다운로드 후 압축을 해제하세요.<br>2. 폴더를 <span class='font-mono text-xs bg-gray-100 px-1 py-0.5 text-black'>Community</span> 경로에 넣으세요.",
+                modal_install_desc_oc3: "1. 파일을 다운로드 하세요.<br>2. <strong>PMDG Operation Center 3</strong> 실행 후 파일을 Import 하세요.",
+                btn_agree_download: "동의 및 다운로드",
+
+                // Request Notice (NEW)
+                modal_req_notice_title: "요청 전 확인사항",
+                modal_req_notice_desc: "리버리 요청이 접수되더라도 <strong>제작이 무조건 보장되는 것은 아님</strong>을 미리 양해 부탁드립니다.<br><br>또한, <strong>실제로 현역으로 운항 중인 기체 및 도장</strong>을 기준으로 신청해 주시기 바랍니다. 가상의 도장이나 퇴역 기체는 제작이 어려울 수 있습니다.",
+                btn_understand: "확인 후 계속하기",
+
+                modal_request_title: "리버리 요청",
+                req_required_hint: "* 표시는 필수 입력 사항입니다",
+                // Updated Numbering
+                req_label_sim: "1. 시뮬레이터 버전",
+                req_label_aircraft: "2. 기체 종류 (Aircraft Type)",
+                req_label_airline: "3. 항공사 (Airline Name)",
+                req_label_reg: "4. 등록 번호 (Aircraft Reg.)",
+                req_label_images: "5. 참고 이미지 (최소 1장, 최대 5장)",
+                req_label_desc: "6. 세부 사항",
+                btn_submit_request: "요청 제출하기",
+
+                modal_admin_title: "관리자 접속",
+                btn_login: "로그인",
+
+                dash_title: "관리자 대시보드",
+                dash_tab_req: "요청 목록",
+                dash_tab_liv: "리버리 관리",
+                dash_manage_liv: "리버리 관리",
+                btn_add_livery: "새 리버리 추가",
+                btn_logout: "로그아웃",
+
+                modal_upload_title: "리버리 업로드",
+                modal_edit_title: "리버리 수정", // Added
+                btn_upload: "업로드",
+                btn_update: "수정하기", // Added
+                btn_edit: "수정", // Added
+
+                modal_del_title: "삭제 확인",
+                modal_del_desc: "정말 삭제하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.",
+                btn_cancel: "취소",
+                btn_delete: "삭제",
+
+                // Dynamic Texts
+                ph_link_req: "이미지 링크 1 (필수) *",
+                ph_link_opt: "추가 이미지 링크 (선택)",
+                ph_details: "특별히 요청하고 싶은 디테일이 있나요?",
+                
+                toast_link_soon: "링크가 아직 준비되지 않았습니다.",
+                toast_ext_link_fail: "외부 링크가 준비되지 않았습니다.",
+                toast_fill_all: "필수 항목을 모두 입력해주세요.",
+                toast_saving: "저장 중...",
+                toast_req_success: "요청이 성공적으로 접수되었습니다!",
+                toast_enter_creds: "이메일과 비밀번호를 입력하세요.",
+                toast_admin_login: "관리자로 로그인되었습니다.",
+                toast_login_fail: "로그인 실패: ",
+                toast_logout: "로그아웃 되었습니다.",
+                toast_miss_fields: "필수 항목을 입력해주세요.",
+                toast_uploading: "업로드 중...",
+                toast_uploaded: "리버리가 업로드되었습니다!",
+                toast_upload_fail: "업로드 실패: ",
+                toast_deleted: "삭제되었습니다.",
+                toast_delete_fail: "삭제 실패: ",
+                toast_db_fail: "DB 연결 실패 또는 데이터 없음.",
+                toast_status_update: "상태가 업데이트되었습니다.",
+                toast_update_fail: "업데이트 실패: ",
+
+                card_more_shots: "스크린샷 더보기",
+                card_download: "다운로드"
+                ,
+                req_status_title: "현재 요청 현황",
+                req_status_loading: "요청 현황을 불러오는 중입니다...",
+                chip_requested: "요청완료",
+                chip_reviewed: "확인완료",
+                chip_in_progress: "진행중",
+                chip_rejected: "반려",
+                req_label_category: "2. 기체 분류",
+                req_label_config: "Aircraft Configuration (선택)",
+                opt_pmdg_738: "PMDG 738",
+                opt_fenix_a320: "FENIX A320",
+                opt_fenix_a321: "FENIX A321"
+                ,
+                no_requests: "표시할 요청이 없습니다."
+
+
+            }
+        };
+
+        let currentLang = 'en'; // Default
+
+        window.setLanguage = (lang) => {
+            currentLang = lang;
+            
+            // Toggle Button Style
+            document.getElementById('lang-ko').classList.toggle('active', lang === 'ko');
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+            // Update Static Texts
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            // Re-Apply dynamic install text if modal is open
+            if(window.currentInstallType && !document.getElementById('downloadModal').classList.contains('hidden')) {
+                const descKey = window.currentInstallType === 'oc3' ? 'modal_install_desc_oc3' : 'modal_install_desc';
+                const el = document.querySelector('[data-i18n="modal_install_desc"]');
+                if(el) el.innerHTML = translations[lang][descKey];
+            }
+
+            // Update Placeholders
+            document.querySelectorAll('.req-img-input').forEach((el, index) => {
+                el.placeholder = index === 0 ? translations[lang]['ph_link_req'] : translations[lang]['ph_link_opt'];
+            });
+            const descArea = document.getElementById('reqDesc');
+            if(descArea) descArea.placeholder = translations[lang]['ph_details'];
+
+            // Re-render Cards (to update button text inside cards)
+            if(window.storedLiveries) {
+                renderLiveries(window.storedLiveries);
+            }
+
+            // Refresh request status chip labels (if built)
+            if(window.__refreshRequestStatusTabLabels) window.__refreshRequestStatusTabLabels();
+
+        };
+
+        // Helper to get text for JS
+        window.getText = (key) => {
+            return translations[currentLang][key] || key;
+        };
+    </script>
+
+    <!-- UI Helpers Script -->
+    <script>
+        // Global Helpers
+        window.convertImageUrl = function(url) {
+            if (!url) return "https://placehold.co/800x450?text=No+Image";
+            
+            // Google Drive Logic
+            if (url.includes('drive.google.com')) {
+                let id = '';
+                const parts = url.match(/\/d\/(.*?)\//);
+                if (parts && parts[1]) id = parts[1];
+                else if (url.includes('id=')) id = url.split('id=')[1].split('&')[0];
+                // Reduced by ~35% from 1920 (1920 * 0.65 ≈ 1250)
+                if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1250`;
+            }
+
+            // Cloudinary Logic (Optimization)
+            if (url.includes('cloudinary.com')) {
+                // If it doesn't already have transformation params, insert them
+                // Simple heuristic: insert after /upload/
+                if (!url.includes('/w_')) {
+                    // Force optimization for better speed
+                    return url.replace('/upload/', '/upload/w_800,q_auto,f_auto/');
+                }
+            }
+            
+            return url;
+        }
+
+        window.showToast = (msgKey, type = 'normal', isRaw = false) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = type==='error'?'<i class="fa-solid fa-circle-exclamation text-red-500"></i>':type==='success'?'<i class="fa-solid fa-circle-check text-blue-500"></i>':'<i class="fa-solid fa-bell text-gray-400"></i>';
+            
+            // Get translated text or use raw if specified
+            let text = isRaw ? msgKey : window.getText(msgKey);
+            // If raw message starts with known error prefix, try to translate prefix
+            if(isRaw && msgKey.startsWith("Login failed")) text = window.getText('toast_login_fail') + msgKey.replace("Login failed: ", "");
+            
+            toast.innerHTML = `${icon}<span>${text}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOutToast 0.4s forwards';
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 3000);
+        };
+
+        // Modal Helpers
+        window.openLink = (link, installType = 'manual') => {
+            if (!link) { showToast("toast_link_soon", "normal"); return; }
+            window.currentLink = link;
+            window.currentInstallType = installType; // Store for lang switch
+
+            // Dynamic Install Text
+            const descKey = installType === 'oc3' ? 'modal_install_desc_oc3' : 'modal_install_desc';
+            const installDescEl = document.querySelector('[data-i18n="modal_install_desc"]');
+            if(installDescEl) installDescEl.innerHTML = window.getText(descKey);
+
+            document.getElementById('downloadModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // New function to show the notice first
+        
+        // --- Request Status (User View) with Chips + Staged (priority) loading ---
+        window.__requestStatusActive = window.__requestStatusActive || {
+            requested: true,
+            reviewed: true,
+            in_progress: true,
+            rejected: true
+        };
+
+        window.__statusPriority = {
+            requested: 0,   // 요청완료
+            reviewed: 1,    // 확인완료
+            in_progress: 2, // 진행중
+            rejected: 3     // 반려
+        };
+
+        
+        // --- Request Status Tabs (single-filter) ---
+        window.__requestStatusTab = window.__requestStatusTab || 'requested';
+
+        window.ensureRequestStatusTabs = () => {
+            const tabWrap = document.getElementById('requestStatusTabs');
+            if (!tabWrap) return;
+
+            if (tabWrap.dataset.built === "1") return;
+            tabWrap.dataset.built = "1";
+
+            const tabs = [
+                { key: 'requested', labelKey: 'chip_requested' },
+                { key: 'reviewed', labelKey: 'chip_reviewed' },
+                { key: 'in_progress', labelKey: 'chip_in_progress' },
+                { key: 'rejected', labelKey: 'chip_rejected' }
+            ];
+
+            tabWrap.className = "flex flex-wrap gap-2 justify-end";
+
+            tabWrap.innerHTML = tabs.map(t => `
+                <button type="button"
+                        class="px-3 py-1.5 rounded-md border text-[11px] font-bold tracking-widest uppercase transition-colors"
+                        data-status="${t.key}"
+                        aria-pressed="false">
+                    ${window.getText ? window.getText(t.labelKey) : t.key}
+                </button>
+            `).join('');
+
+            const refresh = () => {
+                tabWrap.querySelectorAll('button[data-status]').forEach(btn => {
+                    const k = btn.getAttribute('data-status');
+                    const on = (k === window.__requestStatusTab);
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    btn.classList.toggle('bg-black', on);
+                    btn.classList.toggle('text-white', on);
+                    btn.classList.toggle('border-black', on);
+                    btn.classList.toggle('bg-white', !on);
+                    btn.classList.toggle('text-gray-700', !on);
+                    btn.classList.toggle('border-gray-200', !on);
+                });
+            };
+
+            refresh();
+
+            tabWrap.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-status]');
+                if (!btn) return;
+                window.__requestStatusTab = btn.getAttribute('data-status');
+                refresh();
+                if (window.__requestCache) window.renderRequestStatusPreview(window.__requestCache);
+            });
+
+            window.__refreshRequestStatusTabLabels = () => {
+                tabWrap.querySelectorAll('button[data-status]').forEach(btn => {
+                    const k = btn.getAttribute('data-status');
+                    const keyMap = {
+                        requested: 'chip_requested',
+                        reviewed: 'chip_reviewed',
+                        in_progress: 'chip_in_progress',
+                        rejected: 'chip_rejected'
+                    };
+                    const labelKey = keyMap[k] || k;
+                    btn.innerText = window.getText ? window.getText(labelKey) : k;
+                });
+            };
+        };
+
+window.renderRequestStatusPreview = (list) => {
+            const wrap = document.getElementById('requestStatusPreview');
+            if (!wrap) return;
+
+            const tab = window.__requestStatusTab || 'requested';
+
+            const filtered = (list || []).filter(x => x.status === tab);
+
+            if (!filtered.length) {
+                wrap.innerHTML = `<div class="text-gray-400">${window.getText ? window.getText('req_status_loading') : 'No requests to show.'}</div>`;
+                return;
+            }
+
+            const pri = window.__statusPriority || {};
+            filtered.sort((a, b) => {
+                const pa = pri[a.status] ?? 99;
+                const pb = pri[b.status] ?? 99;
+                if (pa !== pb) return pa - pb;
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            });
+
+            const statusTextMap = {
+                requested: window.getText ? window.getText('chip_requested') : 'REQUESTED',
+                reviewed: window.getText ? window.getText('chip_reviewed') : 'REVIEWED',
+                in_progress: window.getText ? window.getText('chip_in_progress') : 'IN PROGRESS',
+                rejected: window.getText ? window.getText('chip_rejected') : 'REJECTED'
+            };
+
+            wrap.innerHTML = filtered.slice(0, 20).map(item => {
+                const st = statusTextMap[item.status] || item.status;
+                const reg = (item.reg || '').toUpperCase();
+                const airline = item.airline || '';
+                const category = item.category || '';
+                const comment = (item.developerComment || '').trim();
+
+                return `
+                    <div class="border border-gray-100 bg-white p-3 rounded-md">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="font-bold text-gray-900 text-xs tracking-wider">${reg || '-'}</div>
+                                <div class="text-[11px] text-gray-600 mt-0.5">${airline || '-'}</div>
+                                <div class="text-[11px] text-gray-500 mt-1">${category || '-'}</div>
+                                ${comment ? `<div class="text-[11px] text-gray-500 mt-1.5"><span class="font-bold text-gray-700">DEV</span> · ${comment}</div>` : ``}
+                            </div>
+                            <div class="shrink-0 text-[10px] font-bold tracking-widest uppercase px-2 py-1 border border-gray-200 rounded-full text-gray-700">
+                                ${st}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.__inferCategory = (aircraftText) => {
+            const s = (aircraftText || '').toLowerCase();
+            if (s.includes('pmdg') || s.includes('738') || s.includes('737')) return 'pmdg_738';
+            if (s.includes('a320')) return 'fenix_a320';
+            if (s.includes('a321')) return 'fenix_a321';
+            if (s.includes('fenix')) return 'fenix_a321';
+            return '';
+        };
+
+        
+window.loadRequestStatusPreview = async () => {
+    window.ensureRequestStatusTabs && window.ensureRequestStatusTabs();
+
+    const wrap = document.getElementById('requestStatusPreview');
+    if (wrap) wrap.innerHTML = `<div class="text-gray-400">${window.getText ? window.getText('req_status_loading') : 'Loading request status...'}</div>`;
+
+    // Instant paint from cache (better perceived speed)
+    if (window.__requestCache && window.__requestCache.length) {
+        window.renderRequestStatusPreview(window.__requestCache);
+    }
+
+    // Normalize legacy statuses into: requested, reviewed, in_progress, rejected, done
+    const normalizeStatus = (data) => {
+        const raw = (data && data.status) ? String(data.status).toLowerCase() : "";
+        if (raw === "requested" || raw === "request" || raw === "pending" || raw === "req") return "requested";
+        if (raw === "reviewed" || raw === "confirmed" || raw === "checked") return "reviewed";
+        if (raw === "in_progress" || raw === "progress" || raw === "working" || raw === "wip") return "in_progress";
+        if (raw === "rejected" || raw === "reject" || raw === "denied") return "rejected";
+        if (raw === "done" || raw === "completed" || raw === "complete") return "done";
+        // Legacy boolean
+        if (data && data.completed === true) return "done";
+        // Default if unknown/missing
+        return "requested";
+    };
+
+    try {
+        const list = [];
+        const seen = new Set();
+
+        // Single query: newest first. This works even if legacy docs don't have "status".
+        // NOTE: if some legacy docs have no createdAt, they won't be returned by this query.
+        // That's acceptable for the status preview; they can be migrated later if desired.
+        const q = query(
+            collection(window.db, "requests"),
+            orderBy("createdAt", "desc"),
+            limit(80)
+        );
+        const snapshot = await getDocs(q);
+
+        snapshot.forEach(d => {
+            if (seen.has(d.id)) return;
+            seen.add(d.id);
+            const data = d.data() || {};
+
+            const createdAt = data.createdAt && typeof data.createdAt.toMillis === 'function'
+                ? data.createdAt.toMillis()
+                : 0;
+
+            const status = normalizeStatus(data);
+            if (status === "done") return; // exclude completed from preview (as agreed)
+
+            list.push({
+                id: d.id,
+                createdAt,
+                simulator: data.simulator || 'msfs2024',
+                category: data.category || (typeof __inferCategory === 'function' ? __inferCategory(data.aircraft) : ""),
+                aircraft: data.aircraft || '',
+                airline: data.airline || '',
+                reg: (data.reg || '').toUpperCase(),
+                status,
+                developerComment: data.developerComment || ''
+            });
+        });
+
+        window.__requestCache = list.slice();
+        if (!window.__requestCache.length && wrap) {
+            wrap.innerHTML = `<div class="text-gray-400 text-xs">${window.getText ? window.getText('no_requests') : '표시할 요청이 없습니다.'}</div>`;
+            return;
+        }
+
+        window.renderRequestStatusPreview(window.__requestCache);
+
+        if (window.checkRequestDuplicate) window.checkRequestDuplicate();
+    } catch (e) {
+        console.error(e);
+        if (wrap) wrap.innerHTML = `<div class="text-red-500 text-xs">Failed to load request status.</div>`;
+    }
+};
+
+
+window.openRequestNotice = () => {
+            document.getElementById('requestNoticeModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Load request status (staged) when the notice opens
+            if (window.loadRequestStatusPreview) window.loadRequestStatusPreview();
+        }
+
+        // Proceed from Notice to Form
+        window.proceedToRequest = () => {
+            document.getElementById('requestNoticeModal').classList.add('hidden');
+            window.openRequestModal();
+        }
+
+        window.openRequestModal = () => {
+            document.getElementById('requestModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Load public request status preview (top section)
+            if(window.loadRequestStatusPreview) window.loadRequestStatusPreview();
+
+            // Bind duplicate detection once
+            if(!window.__reqDupBound && window.bindRequestDuplicateCheck) {
+                window.__reqDupBound = true;
+                window.bindRequestDuplicateCheck();
+            }
+
+            // Initial check
+            if(window.checkRequestDuplicate) window.checkRequestDuplicate();
+        }
+        window.openMoreLink = (link) => {
+            if (!link) { showToast("toast_ext_link_fail", "normal"); return; }
+            
+            // Check if it contains commas (Multiple Images)
+            if (link.includes(',')) {
+                // Parse URLs
+                const images = link.split(',').map(url => url.trim()).filter(url => url.length > 0);
+                
+                if (images.length > 0) {
+                    window.openGallery(images);
+                    return;
+                }
+            }
+
+            // Fallback: Open as regular link
+            window.open(link, '_blank');
+        }
+
+        window.openGallery = (images) => {
+            window.galleryImages = images;
+            window.galleryIndex = 0;
+            window.updateGalleryUI();
+            
+            document.getElementById('galleryModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Add keyboard support
+            document.addEventListener('keydown', window.handleGalleryKeys);
+
+            // [NEW] Preload all images for smooth transition
+            // 갤러리가 열리면 나머지 이미지들도 미리 다운로드 받아놓습니다.
+            images.forEach(url => {
+                const img = new Image();
+                img.src = window.convertImageUrl(url);
+            });
+        }
+
+        window.updateGalleryUI = () => {
+            const imgEl = document.getElementById('galleryImg');
+            const currentEl = document.getElementById('galleryCurrent');
+            const totalEl = document.getElementById('galleryTotal');
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+
+            // Set Image
+            imgEl.src = window.convertImageUrl(window.galleryImages[window.galleryIndex]);
+            
+            // Set Counter
+            currentEl.innerText = window.galleryIndex + 1;
+            totalEl.innerText = window.galleryImages.length;
+
+            // Show/Hide Nav Buttons
+            btnPrev.style.display = window.galleryImages.length > 1 ? 'flex' : 'none';
+            btnNext.style.display = window.galleryImages.length > 1 ? 'flex' : 'none';
+        }
+
+        window.nextImage = () => {
+            window.galleryIndex = (window.galleryIndex + 1) % window.galleryImages.length;
+            window.updateGalleryUI();
+        }
+        window.prevImage = () => {
+            window.galleryIndex = (window.galleryIndex - 1 + window.galleryImages.length) % window.galleryImages.length;
+            window.updateGalleryUI();
+        }
+        // Aliases for HTML onclick
+        window.nextGalleryImage = window.nextImage; 
+        window.prevGalleryImage = window.prevImage;
+
+        window.handleGalleryKeys = (e) => {
+            if (document.getElementById('galleryModal').classList.contains('hidden')) return;
+            if (e.key === 'ArrowRight') window.nextImage();
+            if (e.key === 'ArrowLeft') window.prevImage();
+            if (e.key === 'Escape') window.closeModal('galleryModal');
+        }
+
+        // --- Cloudinary Upload Logic ---
+        const CLOUD_NAME = 'dfww41z3g';
+        const UPLOAD_PRESET = 'choco_livery_upload';
+
+        window.uploadFileToCloudinary = async (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', UPLOAD_PRESET);
+
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                return data.secure_url;
+            } catch (error) {
+                console.error('Upload Error:', error);
+                window.showToast("Upload failed", "error", true);
+                return null;
+            }
+        }
+
+        window.uploadMainImage = async (input) => {
+            if (!input.files || input.files.length === 0) return;
+            
+            const statusEl = document.getElementById('mainImgStatus');
+            const urlInput = document.getElementById('upImage');
+            
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = "Uploading...";
+            
+            const url = await window.uploadFileToCloudinary(input.files[0]);
+            
+            if (url) {
+                urlInput.value = url;
+                statusEl.innerText = "Done!";
+                setTimeout(() => statusEl.classList.add('hidden'), 2000);
+            } else {
+                statusEl.innerText = "Error!";
+            }
+            input.value = ''; // Reset
+        }
+
+        window.uploadScreenshots = async (input) => {
+            if (!input.files || input.files.length === 0) return;
+
+            const statusEl = document.getElementById('screenshotsStatus');
+            const urlInput = document.getElementById('upMoreLink');
+
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = `Uploading ${input.files.length} images...`;
+
+            const promises = Array.from(input.files).map(file => window.uploadFileToCloudinary(file));
+            const urls = await Promise.all(promises);
+            
+            const validUrls = urls.filter(url => url !== null);
+            
+            if (validUrls.length > 0) {
+                const currentVal = urlInput.value.trim();
+                if (currentVal) {
+                    urlInput.value = currentVal + ',' + validUrls.join(',');
+                } else {
+                    urlInput.value = validUrls.join(',');
+                }
+                statusEl.innerText = "Done!";
+                setTimeout(() => statusEl.classList.add('hidden'), 2000);
+            } else {
+                statusEl.innerText = "Error!";
+            }
+            input.value = '';
+        }
+
+        // Modified to handle "Reset" logic for new uploads
+        window.openUploadModal = () => {
+            // 1. Reset Global Edit ID
+            window.editingLiveryId = null;
+
+            // 2. Clear all inputs
+            document.getElementById('upTitle').value = '';
+            document.getElementById('upAddon').value = '';
+            document.getElementById('upVersion').value = 'v1.0';
+            document.getElementById('upLink').value = '';
+            document.getElementById('upImage').value = '';
+            document.getElementById('upMoreLink').value = '';
+            
+            // 3. Reset Selectors to Default
+            document.getElementById('upSim').value = 'msfs2024';
+            document.getElementById('upInstallType').value = 'manual';
+            document.getElementById('upCategory').value = 'pmdg';
+
+            // 4. Update UI Text (Upload Mode)
+            const titleEl = document.querySelector('[data-i18n="modal_upload_title"]');
+            if(titleEl) {
+                titleEl.setAttribute('data-i18n', 'modal_upload_title');
+                titleEl.innerText = window.getText('modal_upload_title');
+            }
+            const btn = document.getElementById('uploadBtn');
+            btn.innerText = window.getText('btn_upload');
+
+            document.getElementById('uploadModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // New Function: Open Modal in Edit Mode
+        window.openEditModal = (id) => {
+            // Find data from admin list cache
+            const item = window.adminLiveryList.find(i => i.id === id);
+            if (!item) return;
+
+            // 1. Set Global Edit ID
+            window.editingLiveryId = id;
+
+            // 2. Fill inputs with existing data
+            document.getElementById('upTitle').value = item.title || '';
+            document.getElementById('upAddon').value = item.addon || '';
+            document.getElementById('upVersion').value = item.version || '';
+            document.getElementById('upLink').value = item.link || '';
+            document.getElementById('upImage').value = item.image || '';
+            document.getElementById('upMoreLink').value = item.moreLink || '';
+            
+            // 3. Set Selectors
+            document.getElementById('upSim').value = item.simulator || 'msfs2024'; // Default to 2024 if missing
+            document.getElementById('upInstallType').value = item.installType || 'manual';
+            document.getElementById('upCategory').value = (item.category || window.inferCategory(item)) || 'pmdg738';
+
+            // 4. Update UI Text (Edit Mode)
+            const titleEl = document.querySelector('[data-i18n="modal_upload_title"]');
+            if(titleEl) {
+                titleEl.setAttribute('data-i18n', 'modal_edit_title'); // Change key for translation
+                titleEl.innerText = window.getText('modal_edit_title');
+            }
+            const btn = document.getElementById('uploadBtn');
+            btn.innerText = window.getText('btn_update');
+
+            document.getElementById('uploadModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeModal = (modalId) => {
+            const id = modalId || 'downloadModal';
+            document.getElementById(id).classList.add('hidden');
+            
+            // Cleanups
+            if (id === 'galleryModal') {
+                document.removeEventListener('keydown', window.handleGalleryKeys);
+            }
+            
+            window.currentLink = ''; 
+            document.body.style.overflow = '';
+        }
+        window.confirmDownload = () => {
+            if (window.currentLink) { window.open(window.currentLink, '_blank'); closeModal('downloadModal'); }
+        }
+        
+        // Window click for modal backdrop - Modified to ignore Admin Dashboard
+        window.onclick = function(event) {
+            if (event.target.classList.contains('fixed') && (event.target.classList.contains('z-[100]') || event.target.classList.contains('z-[200]') || event.target.classList.contains('z-[300]'))) {
+                // EXCEPTION: If it is the Admin Dashboard, do NOT close
+                if (event.target.id === 'adminDashModal') return;
+
+                window.closeModal(event.target.id);
+            }
+        }
+
+        // Render Logic
+        const grid = document.getElementById('liveryGrid');
+        const emptyState = document.getElementById('emptyState');
+        const buttons = { all: document.getElementById('btn-all'), pmdg738: document.getElementById('btn-pmdg738738'), fenixA320: document.getElementById('btn-fenixA320'), fenixA321: document.getElementById('btn-fenixA321A321') };
+
+        window.renderLiveries = (data) => {
+            // No global assignment here to prevent overwriting master data
+            // window.storedLiveries is now for reference if needed, but we mostly use window.masterLiveries with filtering
+            window.storedLiveries = data;
+
+            grid.innerHTML = '';
+            if (!data || data.length === 0) {
+                emptyState.classList.remove('hidden');
+                grid.classList.add('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                grid.classList.remove('hidden');
+            }
+
+            data.forEach(item => {
+                const imageUrl = window.convertImageUrl(item.image);
+                const badgeColor = item.type === 'pmdg' ? 'text-brand-pmdg' : 'text-brand-fenix';
+                const card = document.createElement('div');
+                card.className = 'card-item group bg-white'; 
+                card.innerHTML = `
+                    <div class="relative aspect-video overflow-hidden bg-gray-50 mb-4 cursor-pointer group/image" onclick="openMoreLink('${item.moreLink}')">
+                        <img src="${imageUrl}" alt="${item.title}" class="w-full h-full object-cover grayscale-[20%] group-hover/image:grayscale-0 transition-all duration-500 ease-out" referrerpolicy="no-referrer">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/image:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                            <div class="flex flex-col items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-transform duration-300">
+                                <i class="fa-solid fa-images text-white text-2xl mb-1"></i>
+                                <span class="font-logo text-white text-[10px] tracking-[0.2em] uppercase border-b border-transparent group-hover/image:border-white pb-1 transition-all">${window.getText('card_more_shots')}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-logo text-[10px] font-bold tracking-widest uppercase ${badgeColor}">${item.addon}</span>
+                            <span class="font-logo text-[10px] text-gray-400">${item.version || 'V1.0'}</span>
+                        </div>
+                        <h3 class="text-lg font-light text-black truncate mb-4">${item.title}</h3>
+                        <button onclick="openLink('${item.link}', '${item.installType || 'manual'}')" class="w-full border border-gray-200 h-10 flex items-center justify-center gap-2 hover:bg-black hover:text-white hover:border-black transition-all duration-300 group/btn">
+                            <span class="font-logo text-[10px] tracking-[0.15em] uppercase font-medium">${window.getText('card_download')}</span>
+                            <i class="fa-solid fa-arrow-down text-xs group-hover/btn:translate-y-0.5 transition-transform"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- NEW FILTER LOGIC ---
+        window.currentSim = 'msfs2024'; // Default changed to 2024
+        window.currentType = 'all';     // Default
+
+        window.inferCategory = (item) => {
+            // Backward compatibility for older docs without `category`
+            const t = item.type || '';
+            const addon = (item.addon || '').toLowerCase();
+            if (item.category) return item.category;
+            if (t === 'pmdg') return 'pmdg738';
+            if (t === 'fenix') {
+                if (addon.includes('a320')) return 'fenixA320';
+                if (addon.includes('a321')) return 'fenixA321';
+                // Default for older Fenix entries in this project
+                return 'fenixA321';
+            }
+            // Heuristic fallback
+            if (addon.includes('737-800') || addon.includes('738')) return 'pmdg738';
+            if (addon.includes('a320')) return 'fenixA320';
+            if (addon.includes('a321')) return 'fenixA321';
+            return null;
+        };
+
+        
+
+        window.switchSim = (sim) => {
+            window.currentSim = sim;
+            // UI Toggle
+            document.getElementById('sim-2020').classList.toggle('active', sim === 'msfs2020');
+            document.getElementById('sim-2024').classList.toggle('active', sim === 'msfs2024');
+            // Re-apply filter
+            window.filterItems(window.currentType);
+        }
+
+        window.filterItems = (type) => {
+            window.currentType = type;
+            
+            // UI Toggle for Type
+            Object.keys(buttons).forEach(key => {
+                const btn = buttons[key];
+                btn.classList.remove('active', 'text-black', 'border-black');
+                btn.classList.add('text-gray-400');
+                if (key === 'pmdg738') btn.classList.remove('text-brand-pmdg');
+                if (key === 'fenixA320' || key === 'fenixA321') btn.classList.remove('text-brand-fenix');
+            });
+            buttons[type].classList.remove('text-gray-400');
+            buttons[type].classList.add('active'); 
+
+            if(window.masterLiveries) {
+                const filtered = window.masterLiveries.filter(item => {
+                    // Check Simulator Version (default to 2024 if undefined for legacy compatibility)
+                    const itemSim = item.simulator || 'msfs2024';
+                    const isSimMatch = itemSim === window.currentSim;
+
+                    // Check Type
+                    const cat = window.inferCategory(item) || item.category;
+                    const isTypeMatch = type === 'all' || cat === type;
+
+                    return isSimMatch && isTypeMatch;
+                });
+                renderLiveries(filtered);
+            }
+        }
+    </script>
+
+    <!-- Firebase Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, updateDoc, doc, setDoc, query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Expose Firestore helpers for non-module scripts
+        window.__fs = { collection, addDoc, getDocs, getDoc, deleteDoc, updateDoc, doc, setDoc, query, where, orderBy, limit, serverTimestamp };
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.getDoc = getDoc;
+        window.deleteDoc = deleteDoc;
+        window.updateDoc = updateDoc;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.query = query;
+        window.where = where;
+        window.orderBy = orderBy;
+        window.limit = limit;
+        window.serverTimestamp = serverTimestamp;
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8Nn-SCdjfA_H-8hi_660UsjwTtxc0x8M",
+            authDomain: "choco-livery-db.firebaseapp.com",
+            projectId: "choco-livery-db",
+            storageBucket: "choco-livery-db.firebasestorage.app",
+            messagingSenderId: "480683436152",
+            appId: "1:480683436152:web:8ca6284e189d6ae5bae58d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+            // Expose Firestore handles to non-module scripts
+            window.db = db;
+        const auth = getAuth(app);
+
+        // Variables for delete logic
+        let currentDeleteId = null;
+        let currentDeleteType = null;
+        
+        // Variable for edit logic
+        window.editingLiveryId = null;
+        window.adminLiveryList = []; // Cache for edit lookup
+
+        // --- Data Logic ---
+        window.loadLiveries = async () => {
+            try {
+                const q = query(collection(db, "liveries"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                const list = [];
+                querySnapshot.forEach((doc) => {
+                    list.push({ id: doc.id, ...doc.data() });
+                });
+
+                window.masterLiveries = list; 
+                // Initial filter apply (uses defaults: 2020, all)
+                window.filterItems('all');
+                
+            } catch (e) {
+                console.error("Load Error:", e);
+                window.renderLiveries([]); 
+                console.error(e);
+                window.showToast(window.getText("toast_db_fail") + " " + (e?.message || String(e)), "error", true);
+            }
+        };
+
+        // --- Auth & Functions Binding ---
+        window.submitRequest = async () => {
+            const simulator = document.getElementById('reqSim').value;
+            const category = document.getElementById('reqCategory') ? document.getElementById('reqCategory').value : null;
+            const aircraft = document.getElementById('reqAircraft').value.trim(); // optional details
+            const airline = document.getElementById('reqAirline').value.trim();
+            const reg = document.getElementById('reqReg').value.trim().toUpperCase();
+            const desc = document.getElementById('reqDesc').value.trim();
+            const imgInputs = document.querySelectorAll('.req-img-input');
+            const btn = document.getElementById('submitBtn');
+
+            const images = [];
+            imgInputs.forEach(input => { if (input.value.trim()) images.push(input.value.trim()); });
+
+            // Basic validation
+            if(!category || !airline || !reg || images.length === 0) {
+                window.showToast("toast_miss_fields", "error");
+                return;
+            }
+
+            // Duplicate guard (live-check sets this)
+            if(window.__reqDuplicateBlock === true) {
+                window.showToast("이미 요청되었거나 반려/완료 처리된 리버리입니다.", "error", true);
+                return;
+            }
+
+            btn.innerText = window.getText("toast_saving");
+            btn.disabled = true;
+
+            try {
+                if (!auth.currentUser) await signInAnonymously(auth);
+
+                await addDoc(collection(window.db, "requests"), {
+                    simulator,
+                    category,
+                    aircraft,
+                    airline,
+                    reg,
+                    images,
+                    description: desc,
+                    status: "requested",          // 요청 완료 (default)
+                    developerComment: "",         // dev comment
+                    createdAt: serverTimestamp()
+                });
+
+                window.showToast("toast_req_success", "success");
+                window.closeModal('requestModal');
+
+                // Reset Fields
+                document.getElementById('reqSim').value = 'msfs2024';
+                if(document.getElementById('reqCategory')) document.getElementById('reqCategory').value = 'pmdg_738';
+                document.getElementById('reqAircraft').value = '';
+                document.getElementById('reqAirline').value = '';
+                document.getElementById('reqReg').value = '';
+                document.getElementById('reqDesc').value = '';
+                imgInputs.forEach(input => input.value = '');
+
+                // Refresh preview cache
+                if(window.loadRequestStatusPreview) window.loadRequestStatusPreview();
+            } catch (e) {
+                window.showToast("Error: " + e.message, "error", true);
+            } finally {
+                btn.innerText = window.getText("btn_submit_request");
+                btn.disabled = false;
+            }
+        };
+
+        
+
+        window.bindRequestDuplicateCheck = () => {
+            const simEl = document.getElementById('reqSim');
+            const catEl = document.getElementById('reqCategory');
+            const regEl = document.getElementById('reqReg');
+            if(!simEl || !catEl || !regEl) return;
+
+            let t = null;
+            const debounced = () => {
+                if(t) clearTimeout(t);
+                t = setTimeout(() => window.checkRequestDuplicate(), 200);
+            };
+
+            simEl.addEventListener('change', debounced);
+            catEl.addEventListener('change', debounced);
+            regEl.addEventListener('input', debounced);
+        };
+window.loginAdmin = async () => {
+            const email = document.getElementById('adminEmail').value;
+            const pw = document.getElementById('adminPw').value;
+            if(!email || !pw) return window.showToast("toast_enter_creds", "error");
+            try {
+                // Set persistence to SESSION (logs out when tab/window is closed)
+                await setPersistence(auth, browserSessionPersistence);
+                await signInWithEmailAndPassword(auth, email, pw);
+                window.closeModal('adminLoginModal');
+                window.openAdminDashboard();
+                window.showToast("toast_admin_login", "success");
+            } catch (e) {
+            console.error("Admin login failed:", e);
+            const code = e && e.code ? e.code : "unknown";
+            const msg = e && e.message ? e.message : String(e);
+            const detail = `${code}: ${msg}`;
+            if (window.showToast) {
+                window.showToast(detail, "error", true);
+            } else {
+                alert(detail);
+            }
+}
+        };
+
+        window.logoutAdmin = async () => {
+            await signOut(auth);
+            window.closeModal('adminDashModal');
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPw').value = '';
+            window.showToast("toast_logout", "success");
+        };
+
+        window.submitLivery = async () => {
+            const title = document.getElementById('upTitle').value;
+            const addon = document.getElementById('upAddon').value;
+            const category = document.getElementById('upCategory').value;
+            const type = category.startsWith('pmdg') ? 'pmdg' : 'fenix';
+            const version = document.getElementById('upVersion').value;
+            const link = document.getElementById('upLink').value;
+            const image = document.getElementById('upImage').value;
+            const moreLink = document.getElementById('upMoreLink').value;
+            const simulator = document.getElementById('upSim').value;
+            const installType = document.getElementById('upInstallType').value;
+            
+            const btn = document.getElementById('uploadBtn');
+
+            if(!title || !addon || !link || !image) {
+                window.showToast("toast_miss_fields", "error");
+                return;
+            }
+            
+            const isEdit = !!window.editingLiveryId;
+            btn.innerText = isEdit ? window.getText("toast_saving") : window.getText("toast_uploading");
+            btn.disabled = true;
+
+            try {
+                const dataPayload = {
+                    title, addon, type, category, version, link, image, moreLink, simulator, installType
+                };
+
+                if (isEdit) {
+                    // Update existing
+                    await updateDoc(doc(db, "liveries", window.editingLiveryId), {
+                        ...dataPayload,
+                        updatedAt: serverTimestamp() // Optional: track update time
+                    });
+                    window.showToast("toast_status_update", "success");
+                } else {
+                    // Create new
+                    await addDoc(collection(db, "liveries"), {
+                        ...dataPayload,
+                        createdAt: serverTimestamp()
+                    });
+                    window.showToast("toast_uploaded", "success");
+                }
+
+                window.closeModal('uploadModal');
+                window.loadLiveries();
+                window.loadAdminLiveries();
+            } catch (e) {
+                console.error(e);
+                window.showToast(window.getText("toast_upload_fail") + (e?.message || String(e)), "error", true);
+            } finally {
+                btn.innerText = isEdit ? window.getText("btn_update") : window.getText("btn_upload");
+                btn.disabled = false;
+                window.editingLiveryId = null; // Reset
+            }
+        };
+
+        // --- Delete Logic with Custom Modal ---
+        window.openDeleteModal = (type, id) => {
+            currentDeleteId = id;
+            currentDeleteType = type;
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        };
+
+        window.confirmDeleteAction = async () => {
+            if (!currentDeleteId || !currentDeleteType) return;
+            
+            window.closeModal('deleteConfirmModal');
+            
+            try {
+                const collectionName = currentDeleteType === 'request' ? 'requests' : 'liveries';
+                await deleteDoc(doc(db, collectionName, currentDeleteId));
+                window.showToast("toast_deleted", "success");
+                
+                if (currentDeleteType === 'request') window.loadAdminRequests();
+                else {
+                    window.loadAdminLiveries();
+                    window.loadLiveries();
+                }
+            } catch(e) {
+                console.error(e);
+                window.showToast("toast_delete_fail", "error");
+            }
+        };
+
+        const escapeHtml = (value) => {
+            if (value === null || value === undefined) return '';
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+
+        window.loadAdminRequests = async () => {
+            const listContainer = document.getElementById('requestListContainer');
+            listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 text-sm">Loading requests...</div>';
+            try {
+                const q = query(collection(window.db, "requests"), orderBy("createdAt", "desc"));
+                const snapshot = await getDocs(q);
+
+                const items = [];
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    const status = data.status || (data.completed === true ? 'done' : 'requested'); // back-compat
+                    items.push({
+                        id: d.id,
+                        simulator: data.simulator || 'msfs2024',
+                        category: data.category || __inferCategory(data.aircraft),
+                        aircraft: data.aircraft || '',
+                        airline: data.airline || '',
+                        reg: (data.reg || '').toUpperCase(),
+                        description: data.description || '',
+                        images: data.images || [],
+                        status,
+                        developerComment: data.developerComment || '',
+                        createdAt: data.createdAt
+                    });
+                });
+
+                // Sort: done always at bottom; otherwise by status priority then createdAt desc
+                const rank = { in_progress: 1, reviewed: 2, requested: 3, rejected: 4, done: 99 };
+                items.sort((a,b) => {
+                    const ra = rank[a.status] ?? 50;
+                    const rb = rank[b.status] ?? 50;
+                    if(ra !== rb) return ra - rb;
+                    const ta = a.createdAt?.seconds ? a.createdAt.seconds : 0;
+                    const tb = b.createdAt?.seconds ? b.createdAt.seconds : 0;
+                    return tb - ta;
+                });
+
+                if(items.length === 0) {
+                    listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 text-sm">No requests found.</div>';
+                    return;
+                }
+
+                const statusOptions = [
+                    {v:'requested', t:'요청 완료'},
+                    {v:'reviewed', t:'확인 완료'},
+                    {v:'in_progress', t:'진행중'},
+                    {v:'rejected', t:'반려'},
+                    {v:'done', t:'완료'}
+                ];
+
+                listContainer.innerHTML = items.map(req => {
+                    const date = req.createdAt?.seconds ? new Date(req.createdAt.seconds * 1000).toLocaleString('en-US') : '';
+                    const simLabel = req.simulator === 'msfs2020' ? '2020' : '2024';
+                    const catLabel = (req.category === 'pmdg_738') ? 'PMDG 738' : (req.category === 'fenix_a320') ? 'FENIX A320' : (req.category === 'fenix_a321') ? 'FENIX A321' : (req.category || req.aircraft || '');
+                    const safeReg = escapeHtml(req.reg);
+                    const safeAirline = escapeHtml(req.airline);
+                    const safeDescription = escapeHtml(req.description);
+                    const imgHtml = (req.images || []).slice(0,5).map((l,i)=>`<a href="${l}" target="_blank" class="text-[10px] text-blue-600 px-2 py-1 rounded hover:underline">Img ${i+1}</a>`).join('');
+
+                    const optionHtml = statusOptions.map(o => `<option value="${o.v}" ${o.v===req.status?'selected':''}>${o.t}</option>`).join('');
+
+                    return `
+                        <div class="bg-white p-4 rounded border border-gray-200 mb-3 hover:shadow-sm transition-all">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1">
+                                    <div class="flex flex-wrap gap-2 mb-1">
+                                        <span class="font-bold text-[10px] bg-black text-white px-2 py-0.5 rounded">${catLabel}</span>
+                                        <span class="font-bold text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded">${safeReg}</span>
+                                        <span class="font-bold text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded">${simLabel}</span>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-gray-800">${safeAirline}</h4>
+                                    ${safeDescription ? `<p class="text-xs text-gray-500 mt-2 bg-gray-50 p-2 rounded">${safeDescription}</p>` : ''}
+                                    ${imgHtml ? `<div class="mt-2 flex flex-wrap gap-1">${imgHtml}</div>` : ''}
+                                    <div class="text-[10px] text-gray-300 mt-2">${date}</div>
+                                </div>
+
+                                <div class="w-56 flex flex-col gap-2">
+                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Status</label>
+                                    <select class="input-sharp !py-2" onchange="updateRequestStatus('${req.id}', this.value)">
+                                        ${optionHtml}
+                                    </select>
+
+                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Developer Comment</label>
+                                    <textarea class="input-sharp h-20 resize-none" onblur="updateRequestComment('${req.id}', this.value)">${(req.developerComment || '').replace(/</g,'&lt;')}</textarea>
+
+                                    <button onclick="openDeleteModal('request', '${req.id}')" class="h-9 border border-red-200 text-red-600 text-xs font-bold uppercase rounded hover:bg-red-50">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) {
+                console.error(e);
+                listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 text-sm">Failed to load requests.</div>';
+            }
+        };
+
+        window.updateRequestStatus = async (id, status) => {
+            try {
+                await updateDoc(doc(db, "requests", id), { status });
+                window.showToast("상태가 업데이트되었습니다.", "success", true);
+                // Refresh public preview cache if open
+                if(window.loadRequestStatusPreview) window.loadRequestStatusPreview();
+                // Refresh admin list to re-sort
+                window.loadAdminRequests();
+            } catch(e) {
+                console.error(e);
+                window.showToast("업데이트 실패: " + e.message, "error", true);
+            }
+        };
+
+        window.updateRequestComment = async (id, comment) => {
+            try {
+                await updateDoc(doc(db, "requests", id), { developerComment: comment || "" });
+                window.showToast("코멘트가 저장되었습니다.", "success", true);
+                if(window.loadRequestStatusPreview) window.loadRequestStatusPreview();
+            } catch(e) {
+                console.error(e);
+                window.showToast("업데이트 실패: " + e.message, "error", true);
+            }
+        };
+
+        window.loadAdminLiveries = async () => {
+            const listContainer = document.getElementById('liveryListContainer');
+            listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 text-sm">Loading liveries...</div>';
+            try {
+                const q = query(collection(db, "liveries"), orderBy("createdAt", "desc"));
+                const snapshot = await getDocs(q);
+                let html = '';
+                const list = []; // Temp list to store data
+
+                if(snapshot.empty) html = '<div class="text-center text-gray-400 py-10 text-sm">No uploaded liveries.</div>';
+                else {
+                    snapshot.forEach(doc => {
+                        const item = { id: doc.id, ...doc.data() };
+                        list.push(item); // Add to cache
+
+                        html += `
+                            <div class="bg-white p-4 rounded border border-gray-200 mb-3 flex justify-between items-center hover:shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-8 bg-gray-100 rounded overflow-hidden"><img src="${convertImageUrl(item.image)}" class="w-full h-full object-cover"></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-gray-800">${item.title}</h4>
+                                        <p class="text-[10px] text-gray-500">${item.addon} • ${item.version} • <span class="text-blue-500">${item.simulator === 'msfs2024' ? '2024' : '2020'}</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="openEditModal('${item.id}')" class="text-xs text-blue-500 hover:bg-blue-50 px-2 py-1 rounded font-bold">${window.getText('btn_edit')}</button>
+                                    <button onclick="openDeleteModal('livery', '${item.id}')" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                window.adminLiveryList = list; // Save cache for Edit modal
+                listContainer.innerHTML = html;
+            } catch(e) { console.error(e); }
+        };
+
+        window.toggleComplete = async (id, currentStatus) => {
+            try {
+                await updateDoc(doc(db, "requests", id), { completed: !currentStatus });
+                window.loadAdminRequests();
+                window.showToast("toast_status_update", "success");
+            } catch(e) { window.showToast("toast_update_fail", "error"); }
+        };
+
+        window.openAdminLogin = () => {
+            const user = auth.currentUser;
+            if(user && !user.isAnonymous) {
+                window.openAdminDashboard();
+            } else {
+                document.getElementById('adminLoginModal').classList.remove('hidden');
+            }
+        };
+
+        window.openAdminDashboard = () => {
+            document.getElementById('adminDashModal').classList.remove('hidden');
+            window.switchAdminTab('requests'); // Default tab
+        }
+
+        window.switchAdminTab = (tab) => {
+            document.getElementById('view-requests').classList.add('hidden');
+            document.getElementById('view-liveries').classList.add('hidden');
+            document.getElementById('tab-requests').classList.remove('active');
+            document.getElementById('tab-liveries').classList.remove('active');
+            
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            if(tab === 'requests') window.loadAdminRequests();
+            if(tab === 'liveries') window.loadAdminLiveries();
+        }
+
+        // Start App
+        window.setLanguage('en'); // Initialize text on load (Fix for empty notice)
+        loadLiveries();
+    </script>
+</body>
+</html>

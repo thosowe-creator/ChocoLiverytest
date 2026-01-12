@@ -235,13 +235,13 @@
                 <button onclick="filterItems('all')" id="btn-all" class="filter-tab active font-logo text-sm tracking-widest text-gray-400 hover:text-black uppercase" data-i18n="filter_all">
                     ALL
                 </button>
-                <button onclick="filterItems('pmdg738')" id="btn-pmdg738738" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-pmdg uppercase">
+                <button onclick="filterItems('pmdg738')" id="btn-pmdg738" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-pmdg uppercase">
                     PMDG 738
                 </button>
                 <button onclick="filterItems('fenixA320')" id="btn-fenixA320" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
                     FENIX A320
                 </button>
-                <button onclick="filterItems('fenixA321')" id="btn-fenixA321A321" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
+                <button onclick="filterItems('fenixA321')" id="btn-fenixA321" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
                     FENIX A321
                 </button>
             </div>
@@ -538,7 +538,7 @@
         
         <!-- Main Image Container -->
         <div class="relative w-full h-full flex items-center justify-center p-4 md:p-10">
-            <img id="galleryImg" src="" class="max-w-full max-h-full object-contain shadow-2xl rounded-sm transition-transform duration-300">
+            <img id="galleryImg" src="" alt="Livery screenshot" class="max-w-full max-h-full object-contain shadow-2xl rounded-sm transition-transform duration-300">
             
             <!-- Navigation Buttons -->
             <button onclick="prevGalleryImage()" id="btnPrev" class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white bg-black/20 hover:bg-black/50 rounded-full w-12 h-12 flex items-center justify-center transition-all">
@@ -1359,10 +1359,22 @@ window.openRequestNotice = () => {
             }
         }
 
+        const escapeHtml = (value) => {
+            if (value === null || value === undefined) return '';
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+
+        const toJsString = (value) => JSON.stringify(value ?? '');
+
         // Render Logic
         const grid = document.getElementById('liveryGrid');
         const emptyState = document.getElementById('emptyState');
-        const buttons = { all: document.getElementById('btn-all'), pmdg738: document.getElementById('btn-pmdg738738'), fenixA320: document.getElementById('btn-fenixA320'), fenixA321: document.getElementById('btn-fenixA321A321') };
+        const buttons = { all: document.getElementById('btn-all'), pmdg738: document.getElementById('btn-pmdg738'), fenixA320: document.getElementById('btn-fenixA320'), fenixA321: document.getElementById('btn-fenixA321') };
 
         window.renderLiveries = (data) => {
             // No global assignment here to prevent overwriting master data
@@ -1380,13 +1392,19 @@ window.openRequestNotice = () => {
             }
 
             data.forEach(item => {
-                const imageUrl = window.convertImageUrl(item.image);
+                const imageUrl = escapeHtml(window.convertImageUrl(item.image));
                 const badgeColor = item.type === 'pmdg' ? 'text-brand-pmdg' : 'text-brand-fenix';
+                const safeTitle = escapeHtml(item.title || '');
+                const safeAddon = escapeHtml(item.addon || '');
+                const safeVersion = escapeHtml(item.version || 'V1.0');
+                const moreLink = toJsString(item.moreLink || '');
+                const downloadLink = toJsString(item.link || '');
+                const installType = toJsString(item.installType || 'manual');
                 const card = document.createElement('div');
                 card.className = 'card-item group bg-white'; 
                 card.innerHTML = `
-                    <div class="relative aspect-video overflow-hidden bg-gray-50 mb-4 cursor-pointer group/image" onclick="openMoreLink('${item.moreLink}')">
-                        <img src="${imageUrl}" alt="${item.title}" class="w-full h-full object-cover grayscale-[20%] group-hover/image:grayscale-0 transition-all duration-500 ease-out" referrerpolicy="no-referrer">
+                    <div class="relative aspect-video overflow-hidden bg-gray-50 mb-4 cursor-pointer group/image" onclick="openMoreLink(${moreLink})">
+                        <img src="${imageUrl}" alt="${safeTitle}" class="w-full h-full object-cover grayscale-[20%] group-hover/image:grayscale-0 transition-all duration-500 ease-out" referrerpolicy="no-referrer">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/image:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
                             <div class="flex flex-col items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-transform duration-300">
                                 <i class="fa-solid fa-images text-white text-2xl mb-1"></i>
@@ -1396,11 +1414,11 @@ window.openRequestNotice = () => {
                     </div>
                     <div class="flex flex-col">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-logo text-[10px] font-bold tracking-widest uppercase ${badgeColor}">${item.addon}</span>
-                            <span class="font-logo text-[10px] text-gray-400">${item.version || 'V1.0'}</span>
+                            <span class="font-logo text-[10px] font-bold tracking-widest uppercase ${badgeColor}">${safeAddon}</span>
+                            <span class="font-logo text-[10px] text-gray-400">${safeVersion}</span>
                         </div>
-                        <h3 class="text-lg font-light text-black truncate mb-4">${item.title}</h3>
-                        <button onclick="openLink('${item.link}', '${item.installType || 'manual'}')" class="w-full border border-gray-200 h-10 flex items-center justify-center gap-2 hover:bg-black hover:text-white hover:border-black transition-all duration-300 group/btn">
+                        <h3 class="text-lg font-light text-black truncate mb-4">${safeTitle}</h3>
+                        <button onclick="openLink(${downloadLink}, ${installType})" class="w-full border border-gray-200 h-10 flex items-center justify-center gap-2 hover:bg-black hover:text-white hover:border-black transition-all duration-300 group/btn">
                             <span class="font-logo text-[10px] tracking-[0.15em] uppercase font-medium">${window.getText('card_download')}</span>
                             <i class="fa-solid fa-arrow-down text-xs group-hover/btn:translate-y-0.5 transition-transform"></i>
                         </button>
@@ -1744,16 +1762,6 @@ window.loginAdmin = async () => {
             }
         };
 
-        const escapeHtml = (value) => {
-            if (value === null || value === undefined) return '';
-            return String(value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        };
-
         window.loadAdminRequests = async () => {
             const listContainer = document.getElementById('requestListContainer');
             listContainer.innerHTML = '<div class="text-center text-gray-400 py-10 text-sm">Loading requests...</div>';
@@ -1811,7 +1819,7 @@ window.loginAdmin = async () => {
                     const safeReg = escapeHtml(req.reg);
                     const safeAirline = escapeHtml(req.airline);
                     const safeDescription = escapeHtml(req.description);
-                    const imgHtml = (req.images || []).slice(0,5).map((l,i)=>`<a href="${l}" target="_blank" class="text-[10px] text-blue-600 px-2 py-1 rounded hover:underline">Img ${i+1}</a>`).join('');
+                    const imgHtml = (req.images || []).slice(0,5).map((l,i)=>`<a href="${escapeHtml(l)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-blue-600 px-2 py-1 rounded hover:underline">Img ${i+1}</a>`).join('');
 
                     const optionHtml = statusOptions.map(o => `<option value="${o.v}" ${o.v===req.status?'selected':''}>${o.t}</option>`).join('');
 
@@ -1889,20 +1897,26 @@ window.loginAdmin = async () => {
                 else {
                     snapshot.forEach(doc => {
                         const item = { id: doc.id, ...doc.data() };
+                        const safeTitle = escapeHtml(item.title || '');
+                        const safeAddon = escapeHtml(item.addon || '');
+                        const safeVersion = escapeHtml(item.version || 'V1.0');
+                        const imageUrl = escapeHtml(convertImageUrl(item.image));
+                        const editId = toJsString(item.id);
+                        const simLabel = item.simulator === 'msfs2024' ? '2024' : '2020';
                         list.push(item); // Add to cache
 
                         html += `
                             <div class="bg-white p-4 rounded border border-gray-200 mb-3 flex justify-between items-center hover:shadow-sm">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-12 h-8 bg-gray-100 rounded overflow-hidden"><img src="${convertImageUrl(item.image)}" class="w-full h-full object-cover"></div>
+                                    <div class="w-12 h-8 bg-gray-100 rounded overflow-hidden"><img src="${imageUrl}" alt="${safeTitle || 'Livery thumbnail'}" class="w-full h-full object-cover"></div>
                                     <div>
-                                        <h4 class="font-bold text-sm text-gray-800">${item.title}</h4>
-                                        <p class="text-[10px] text-gray-500">${item.addon} • ${item.version} • <span class="text-blue-500">${item.simulator === 'msfs2024' ? '2024' : '2020'}</span></p>
+                                        <h4 class="font-bold text-sm text-gray-800">${safeTitle}</h4>
+                                        <p class="text-[10px] text-gray-500">${safeAddon} • ${safeVersion} • <span class="text-blue-500">${simLabel}</span></p>
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button onclick="openEditModal('${item.id}')" class="text-xs text-blue-500 hover:bg-blue-50 px-2 py-1 rounded font-bold">${window.getText('btn_edit')}</button>
-                                    <button onclick="openDeleteModal('livery', '${item.id}')" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold">Delete</button>
+                                    <button onclick="openEditModal(${editId})" class="text-xs text-blue-500 hover:bg-blue-50 px-2 py-1 rounded font-bold">${window.getText('btn_edit')}</button>
+                                    <button onclick="openDeleteModal('livery', ${editId})" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold">Delete</button>
                                 </div>
                             </div>
                         `;

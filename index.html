@@ -1119,22 +1119,58 @@ window.openRequestNotice = () => {
             // Initial check
             if(window.checkRequestDuplicate) window.checkRequestDuplicate();
         }
-        window.openMoreLink = (link) => {
-            if (!link) { showToast("toast_ext_link_fail", "normal"); return; }
-            
-            // Check if it contains commas (Multiple Images)
-            if (link.includes(',')) {
-                // Parse URLs
-                const images = link.split(',').map(url => url.trim()).filter(url => url.length > 0);
-                
-                if (images.length > 0) {
-                    window.openGallery(images);
-                    return;
-                }
+        window.parseMoreLinks = (link) => {
+            if (!link) return [];
+
+            if (Array.isArray(link)) {
+                return link
+                    .map(url => String(url || '').trim())
+                    .filter(url => url.length > 0);
             }
 
-            // Fallback: Open as regular link
-            window.open(link, '_blank');
+            if (typeof link === 'string') {
+                const trimmed = link.trim();
+                if (!trimmed) return [];
+
+                if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                    try {
+                        const parsed = JSON.parse(trimmed);
+                        if (Array.isArray(parsed)) {
+                            return parsed
+                                .map(url => String(url || '').trim())
+                                .filter(url => url.length > 0);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse moreLink JSON:', e);
+                    }
+                }
+
+                if (trimmed.includes(',')) {
+                    return trimmed
+                        .split(',')
+                        .map(url => url.trim())
+                        .filter(url => url.length > 0);
+                }
+
+                return [trimmed];
+            }
+
+            return [];
+        };
+
+        window.openMoreLink = (link) => {
+            const images = window.parseMoreLinks(link);
+            if (images.length > 1) {
+                window.openGallery(images);
+                return;
+            }
+
+            if (images.length === 1) {
+                window.open(images[0], '_blank');
+                return;
+            }
+
+            showToast("toast_ext_link_fail", "normal");
         }
 
         window.openGallery = (images) => {

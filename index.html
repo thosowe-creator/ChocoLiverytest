@@ -1120,42 +1120,62 @@ window.openRequestNotice = () => {
             if(window.checkRequestDuplicate) window.checkRequestDuplicate();
         }
         window.parseMoreLinks = (link) => {
-            if (!link) return [];
+            // Accept:
+            // 1) Array: ["url1","url2"]
+            // 2) JSON string array: '["url1","url2"]' (even if bracket is missing - we try to recover)
+            // 3) Comma-separated string: "url1, url2"
+            // 4) Single URL string
+            try {
+                if (Array.isArray(link)) {
+                    return link
+                        .map(url => String(url || '').trim())
+                        .filter(url => url.length > 0);
+                }
 
-            if (Array.isArray(link)) {
-                return link
-                    .map(url => String(url || '').trim())
-                    .filter(url => url.length > 0);
-            }
+                if (typeof link === 'string') {
+                    const trimmed = link.trim();
+                    if (!trimmed) return [];
 
-            if (typeof link === 'string') {
-                const trimmed = link.trim();
-                if (!trimmed) return [];
+                    // Try JSON array parsing whenever it *looks* like JSON.
+                    if (trimmed.startsWith('[')) {
+                        const tryParse = (s) => {
+                            try {
+                                return JSON.parse(s);
+                            } catch (e) {
+                                return null;
+                            }
+                        };
 
-                if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-                    try {
-                        const parsed = JSON.parse(trimmed);
+                        let parsed = tryParse(trimmed);
+
+                        // Recovery: missing closing bracket -> append it and retry.
+                        if (!parsed && !trimmed.endsWith(']')) {
+                            parsed = tryParse(trimmed + ']');
+                        }
+
                         if (Array.isArray(parsed)) {
                             return parsed
                                 .map(url => String(url || '').trim())
                                 .filter(url => url.length > 0);
                         }
-                    } catch (e) {
-                        console.warn('Failed to parse moreLink JSON:', e);
                     }
+
+                    // Comma separated fallback
+                    if (trimmed.includes(',')) {
+                        return trimmed
+                            .split(',')
+                            .map(url => url.trim())
+                            .filter(url => url.length > 0);
+                    }
+
+                    return [trimmed];
                 }
 
-                if (trimmed.includes(',')) {
-                    return trimmed
-                        .split(',')
-                        .map(url => url.trim())
-                        .filter(url => url.length > 0);
-                }
-
-                return [trimmed];
+                return [];
+            } catch (e) {
+                console.warn('Failed to parse moreLink:', e, link);
+                return [];
             }
-
-            return [];
         };
 
         window.openMoreLink = (link) => {

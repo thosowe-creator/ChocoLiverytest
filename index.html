@@ -1439,7 +1439,7 @@ window.openRequestNotice = () => {
                 const card = document.createElement('div');
                 card.className = 'card-item group bg-white'; 
                 card.innerHTML = `
-                    <div class="relative aspect-video overflow-hidden bg-gray-50 mb-4 cursor-pointer group/image" onclick='openMoreLink(${moreLink})'>
+                    <div class="relative aspect-video overflow-hidden bg-gray-50 mb-4 cursor-pointer group/image" onclick="openMoreLink(${moreLink})">
                         <img src="${imageUrl}" alt="${safeTitle}" class="w-full h-full object-cover grayscale-[20%] group-hover/image:grayscale-0 transition-all duration-500 ease-out" referrerpolicy="no-referrer">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/image:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
                             <div class="flex flex-col items-center gap-2 transform translate-y-4 group-hover/image:translate-y-0 transition-transform duration-300">
@@ -1454,7 +1454,7 @@ window.openRequestNotice = () => {
                             <span class="font-logo text-[10px] text-gray-400">${safeVersion}</span>
                         </div>
                         <h3 class="text-lg font-light text-black truncate mb-4">${safeTitle}</h3>
-                        <button onclick='openLink(${downloadLink}, ${installType})' class="w-full border border-gray-200 h-10 flex items-center justify-center gap-2 hover:bg-black hover:text-white hover:border-black transition-all duration-300 group/btn">
+                        <button onclick="openLink(${downloadLink}, ${installType})" class="w-full border border-gray-200 h-10 flex items-center justify-center gap-2 hover:bg-black hover:text-white hover:border-black transition-all duration-300 group/btn">
                             <span class="font-logo text-[10px] tracking-[0.15em] uppercase font-medium">${window.getText('card_download')}</span>
                             <i class="fa-solid fa-arrow-down text-xs group-hover/btn:translate-y-0.5 transition-transform"></i>
                         </button>
@@ -1951,8 +1951,8 @@ window.loginAdmin = async () => {
                                     </div>
                                 </div>
                                 <div class="flex gap-2">
-                                    <button onclick='openEditModal(${editId})' class="text-xs text-blue-500 hover:bg-blue-50 px-2 py-1 rounded font-bold">${window.getText('btn_edit')}</button>
-                                    <button onclick='openDeleteModal("livery", ${editId})' class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold">Delete</button>
+                                    <button onclick="openEditModal(${editId})" class="text-xs text-blue-500 hover:bg-blue-50 px-2 py-1 rounded font-bold">${window.getText('btn_edit')}</button>
+                                    <button onclick="openDeleteModal('livery', ${editId})" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold">Delete</button>
                                 </div>
                             </div>
                         `;

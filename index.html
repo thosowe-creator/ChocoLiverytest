@@ -235,13 +235,13 @@
                 <button onclick="filterItems('all')" id="btn-all" class="filter-tab active font-logo text-sm tracking-widest text-gray-400 hover:text-black uppercase" data-i18n="filter_all">
                     ALL
                 </button>
-                <button onclick="filterItems('pmdg738')" id="btn-pmdg738738" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-pmdg uppercase">
+                <button onclick="filterItems('pmdg738')" id="btn-pmdg738" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-pmdg uppercase">
                     PMDG 738
                 </button>
                 <button onclick="filterItems('fenixA320')" id="btn-fenixA320" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
                     FENIX A320
                 </button>
-                <button onclick="filterItems('fenixA321')" id="btn-fenixA321A321" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
+                <button onclick="filterItems('fenixA321')" id="btn-fenixA321" class="filter-tab font-logo text-sm tracking-widest text-gray-400 hover:text-brand-fenix uppercase">
                     FENIX A321
                 </button>
             </div>
@@ -272,7 +272,33 @@
 
     <!-- Modals -->
 
-    <!-- 1-A. Request Notice Modal (NEW) -->
+    
+    <!-- 0. Site Notice Modal (NEW) -->
+    <div id="siteNoticeModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-white/80 backdrop-blur-md px-4 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-3xl shadow-[0_20px_60px_rgba(0,0,0,0.10)] border border-gray-100 p-8 modal-enter relative">
+            <button onclick="closeModal('siteNoticeModal')" class="absolute top-4 right-4 text-gray-400 hover:text-black">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="mb-6">
+                <h3 id="siteNoticeTitle" class="font-logo font-light text-2xl tracking-[0.20em] uppercase">NOTICE</h3>
+                <div class="h-0.5 w-8 bg-black"></div>
+            </div>
+
+            <div id="siteNoticeBody" class="text-sm text-gray-600 font-light leading-relaxed"></div>
+
+            <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <label class="inline-flex items-center gap-2 text-xs text-gray-600 select-none">
+                    <input id="siteNoticeDontShow" type="checkbox" class="accent-black">
+                    <span data-i18n="site_notice_dont_show">Don't show again</span>
+                </label>
+
+                <button onclick="closeModal('siteNoticeModal')" class="bg-black text-white px-6 py-2 rounded-md text-xs tracking-widest uppercase hover:bg-gray-900 transition" data-i18n="btn_close">Close</button>
+            </div>
+        </div>
+    </div>
+
+<!-- 1-A. Request Notice Modal (NEW) -->
     <div id="requestNoticeModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-white/80 backdrop-blur-md px-4 transition-opacity duration-300">
         <div class="bg-white w-full max-w-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-gray-100 p-8 modal-enter relative">
             <button onclick="closeModal('requestNoticeModal')" class="absolute top-6 right-6 text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -296,6 +322,9 @@
             </div>
             <button onclick="proceedToRequest()" class="w-full bg-black text-white h-12 hover:bg-gray-800 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-2">
                 <span data-i18n="btn_understand">I Understand</span> <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button id="btnReturnFromNotice" onclick="closeModal('requestNoticeModal')" class="w-full mt-3 border border-gray-200 text-gray-700 h-12 hover:bg-gray-50 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-2 hidden">
+                <span data-i18n="btn_return">I Understand & Return</span> <i class="fa-solid fa-arrow-left"></i>
             </button>
         </div>
     </div>
@@ -412,6 +441,7 @@
                     <div class="flex gap-4">
                         <button onclick="switchAdminTab('requests')" id="tab-requests" class="admin-tab-btn active" data-i18n="dash_tab_req">Requests</button>
                         <button onclick="switchAdminTab('liveries')" id="tab-liveries" class="admin-tab-btn" data-i18n="dash_tab_liv">Liveries</button>
+                        <button onclick="switchAdminTab('settings')" id="tab-settings" class="admin-tab-btn" data-i18n="dash_tab_settings">Settings</button>
                     </div>
                 </div>
                 <div class="flex gap-3">
@@ -437,6 +467,96 @@
                     </div>
                     <div id="liveryListContainer"><div class="text-center text-gray-400 py-10 text-sm">Loading liveries...</div></div>
                 </div>
+
+                <!-- Tab: Settings -->
+                <div id="view-settings" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="font-bold text-sm text-gray-600" data-i18n="dash_settings_title">SITE SETTINGS</h4>
+                    </div>
+
+                    <div class="space-y-6 bg-white border border-gray-200 rounded-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm font-bold text-gray-700" data-i18n="setting_request_open">Accept Requests</div>
+                            <label class="inline-flex items-center gap-2 text-sm">
+                                <input type="checkbox" id="settingRequestOpen" class="accent-black">
+                                <span class="text-gray-500 text-xs font-bold tracking-widest uppercase" id="settingRequestOpenLabel">ON</span>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm font-bold text-gray-700" data-i18n="setting_notice_enabled">Enable Notice Popup</div>
+                            <label class="inline-flex items-center gap-2 text-sm">
+                                <input type="checkbox" id="settingNoticeEnabled" class="accent-black" checked>
+                                <span class="text-gray-500 text-xs font-bold tracking-widest uppercase" id="settingNoticeEnabledLabel">ON</span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">KO</div>
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_notice_title">Notice Title</label>
+                                <input type="text" id="settingNoticeTitleKo" class="input-sharp" placeholder="...">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_notice_body">Notice Body (HTML allowed)</label>
+                                <textarea id="settingNoticeBodyKo" class="input-sharp h-32 resize-none"></textarea>
+
+                                <div class="pt-4 border-t border-gray-100"></div>
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_closed_title">Closed Title</label>
+                                <input type="text" id="settingClosedTitleKo" class="input-sharp" placeholder="...">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_closed_body">Closed Message (HTML allowed)</label>
+                                <textarea id="settingClosedBodyKo" class="input-sharp h-28 resize-none"></textarea>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">EN</div>
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_notice_title">Notice Title</label>
+                                <input type="text" id="settingNoticeTitleEn" class="input-sharp" placeholder="...">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_notice_body">Notice Body (HTML allowed)</label>
+                                <textarea id="settingNoticeBodyEn" class="input-sharp h-32 resize-none"></textarea>
+
+                                <div class="pt-4 border-t border-gray-100"></div>
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_closed_title">Closed Title</label>
+                                <input type="text" id="settingClosedTitleEn" class="input-sharp" placeholder="...">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_closed_body">Closed Message (HTML allowed)</label>
+                                <textarea id="settingClosedBodyEn" class="input-sharp h-28 resize-none"></textarea>
+                            </div>
+                        </div>
+
+
+                        <!-- Site Notice Popup Settings (NEW) -->
+                        <div class="pt-6 border-t border-gray-100"></div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm font-bold text-gray-700" data-i18n="setting_site_notice_enabled">Enable Site Notice Popup</div>
+                            <label class="inline-flex items-center gap-2 text-sm">
+                                <input type="checkbox" id="settingSiteNoticeEnabled" class="accent-black">
+                                <span class="text-gray-500 text-xs font-bold tracking-widest uppercase" id="settingSiteNoticeEnabledLabel">OFF</span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">KO</div>
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_site_notice_title">Popup Title</label>
+                                <input type="text" id="settingSiteNoticeTitleKo" class="input-sharp" placeholder="...">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_site_notice_body">Popup Body (HTML allowed)</label>
+                                <textarea id="settingSiteNoticeBodyKo" class="input-sharp h-32 resize-none"></textarea>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">EN</div>
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_site_notice_title">Popup Title</label>
+                                <input type="text" id="settingSiteNoticeTitleEn" class="input-sharp" placeholder="...">
+                                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest" data-i18n="setting_site_notice_body">Popup Body (HTML allowed)</label>
+                                <textarea id="settingSiteNoticeBodyEn" class="input-sharp h-32 resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <button onclick="saveSiteNoticeSettings()" class="w-full bg-gray-900 text-white py-3 rounded-md text-xs tracking-widest uppercase hover:bg-black transition" data-i18n="btn_publish_notice">Publish Popup</button>
+
+                        <button onclick="saveRequestSettings()" class="w-full bg-black text-white h-12 hover:bg-gray-800 transition-colors duration-300 font-logo text-sm font-medium tracking-widest uppercase" data-i18n="btn_save_settings">Save Settings</button>
+                    </div>
+                </div>
+</div>
             </div>
         </div>
     </div>
@@ -563,143 +683,187 @@
                 nav_request: "Request Livery",
                 filter_all: "ALL",
                 loading_data: "LOADING DATA...",
-                no_livery: "No Livery Found",
-                
+                no_livery: "No liveries found.",
+                no_requests: "No requests to show.",
+
                 // Modals
                 modal_download_title: "DOWNLOAD",
                 modal_warn_title: "Warning",
-                modal_warn_desc: "Unauthorized modification and redistribution of this file are <span class='font-medium text-black'>strictly prohibited</span>.<br>Please use it for personal use only.",
+                modal_warn_desc: "Unauthorized modification or redistribution of this file is <span class='font-medium text-black'>strictly prohibited</span>.<br>Please use it for personal use only.",
                 modal_install_title: "How to Install",
-                modal_install_desc: "1. Download and unzip the file.<br>2. Place the folder into your <span class='font-mono text-xs bg-gray-100 px-1 py-0.5 text-black'>Community</span> folder.",
-                modal_install_desc_oc3: "1. Download this file.<br>2. Open <strong>PMDG Operation Center 3</strong> then Import This File.",
+                modal_install_desc: "1. Download and unzip the file.<br>2. Move the folder into your <span class='font-mono text-xs bg-gray-100 px-1 py-0.5 text-black'>Community</span> folder.",
+                modal_install_desc_oc3: "1. Download this file.<br>2. Open <strong>PMDG Operation Center 3</strong> and import this file.",
                 btn_agree_download: "Agree & Download",
 
-                // Request Notice (NEW)
+                // Request Notice
                 modal_req_notice_title: "BEFORE REQUEST",
-                modal_req_notice_desc: "Please note that submitting a request <strong>does not guarantee</strong> its creation. We review all requests but cannot fulfill every single one.<br><br>Also, please ensure your request is based on <strong>real-world, currently active aircraft</strong>. Fictional or retired liveries might not be accepted.",
+                modal_req_notice_desc: "Submitting a request does not guarantee production.<br>Please request based on a <strong>real airline</strong>. Fictional or retired liveries may be declined.",
                 btn_understand: "I Understand & Continue",
+                btn_return: "Return",
 
                 modal_request_title: "REQUEST LIVERY",
-                req_required_hint: "* Indicates required field",
-                // Updated Numbering
+                req_required_hint: "* Indicates required fields",
                 req_label_sim: "1. Simulator Version",
-                req_label_aircraft: "2. Aircraft Type",
+                req_label_category: "2. Aircraft Category",
+                opt_pmdg_738: "PMDG 738",
+                opt_fenix_a320: "FENIX A320",
+                opt_fenix_a321: "FENIX A321",
+                req_label_config: "Aircraft Configuration (Optional)",
+                req_label_aircraft: "Aircraft Type (Details)",
                 req_label_airline: "3. Airline Name",
-                req_label_reg: "4. Aircraft Reg.",
+                req_label_reg: "4. Aircraft Registration",
                 req_label_images: "5. Reference Images (Min 1, Max 5)",
                 req_label_desc: "6. Details",
+                ph_link_req: "Image link 1 (Required) *",
+                ph_link_opt: "Additional image link (Optional)",
+                ph_details: "Any specific details or requests?",
                 btn_submit_request: "Submit Request",
 
+                req_status_title: "REQUEST STATUS",
+                req_status_loading: "Loading request status...",
+
+                chip_requested: "REQUESTED",
+                chip_reviewed: "REVIEWED",
+                chip_in_progress: "IN PROGRESS",
+                chip_rejected: "REJECTED",
+
+                // Admin
                 modal_admin_title: "ADMIN ACCESS",
                 btn_login: "Login",
 
                 dash_title: "ADMIN DASHBOARD",
                 dash_tab_req: "Requests",
                 dash_tab_liv: "Liveries",
+                dash_tab_settings: "Settings",
                 dash_manage_liv: "MANAGE LIVERIES",
+                dash_settings_title: "SETTINGS",
                 btn_add_livery: "Add New Livery",
                 btn_logout: "Logout",
 
                 modal_upload_title: "UPLOAD LIVERY",
-                modal_edit_title: "EDIT LIVERY", // Added
+                modal_edit_title: "EDIT LIVERY",
                 btn_upload: "Upload",
-                btn_update: "Update", // Added
-                btn_edit: "Edit", // Added
+                btn_update: "Update",
+                btn_edit: "Edit",
 
                 modal_del_title: "DELETE CONFIRMATION",
                 modal_del_desc: "Are you sure you want to delete this item?<br>This action cannot be undone.",
                 btn_cancel: "Cancel",
                 btn_delete: "Delete",
 
-                // Dynamic Texts (Toasts & Placeholders)
-                ph_link_req: "Link 1 (Required) *",
-                ph_link_opt: "Link (Optional)",
-                ph_details: "Any specific details or requests?",
-                
-                toast_link_soon: "Link coming soon.",
-                toast_ext_link_fail: "External link not ready.",
+                // Dynamic Texts
+                toast_link_soon: "Link is not ready yet.",
+                toast_ext_link_fail: "External link is not ready.",
+                toast_db_fail: "Failed to load data from the database.",
+                toast_enter_creds: "Please enter email and password.",
+                toast_login_fail: "Login failed: ",
+                toast_admin_login: "Logged in as admin.",
+                toast_logout: "Logged out.",
                 toast_fill_all: "Please fill in all required fields.",
+                toast_miss_fields: "Missing required fields.",
+                toast_requests_closed: "Requests are currently closed.",
                 toast_saving: "Saving...",
                 toast_req_success: "Request submitted successfully!",
-                toast_enter_creds: "Enter email/password.",
-                toast_admin_login: "Logged in as Admin.",
-                toast_login_fail: "Login failed: ",
-                toast_logout: "Logged out.",
-                toast_miss_fields: "Missing required fields.",
+                toast_status_update: "Status updated.",
+                toast_update_fail: "Failed to update: ",
                 toast_uploading: "Uploading...",
                 toast_uploaded: "Livery uploaded!",
                 toast_upload_fail: "Upload failed: ",
-                toast_deleted: "Deleted successfully.",
                 toast_delete_fail: "Delete failed: ",
-                toast_db_fail: "DB Connection Failed or Empty.",
-                toast_status_update: "Status updated.",
-                toast_update_fail: "Update failed: ",
-                
+                toast_deleted: "Deleted successfully.",
+                toast_settings_saved: "Settings saved.",
+                toast_settings_save_fail: "Failed to save settings: ",
+
+                // Settings
+                setting_request_open: "Accept Requests",
+                setting_notice_enabled: "Enable Request Notice Popup",
+                setting_notice_title: "Notice Title",
+                setting_notice_body: "Notice Body (HTML allowed)",
+                setting_closed_title: "Closed Title",
+                setting_closed_body: "Closed Message (HTML allowed)",
+                btn_save_settings: "Save Settings",
+
+                // Cards
+                card_download: "Download",
                 card_more_shots: "More Screenshots",
-                card_download: "Download"
-                ,
-                req_status_title: "REQUEST STATUS",
-                req_status_loading: "Loading request status...",
-                chip_requested: "REQUESTED",
-                chip_reviewed: "REVIEWED",
-                chip_in_progress: "IN PROGRESS",
-                chip_rejected: "REJECTED",
-                req_label_category: "2. Aircraft Category",
-                req_label_config: "Aircraft Configuration (Optional)",
-                opt_pmdg_738: "PMDG 738",
-                opt_fenix_a320: "FENIX A320",
-                opt_fenix_a321: "FENIX A321"
-                ,
-                no_requests: "No requests to show."
 
-
+                // Site Notice Popup (NEW)
+                setting_site_notice_enabled: "Enable Site Notice Popup",
+                setting_site_notice_title: "Popup Title",
+                setting_site_notice_body: "Popup Body (HTML allowed)",
+                btn_publish_notice: "Publish Popup",
+                toast_notice_published: "Popup notice published.",
+                toast_notice_publish_fail: "Failed to publish popup notice: ",
+                site_notice_dont_show: "Don't show again",
+                btn_close: "Close"
             },
+
             ko: {
                 nav_request: "리버리 요청",
                 filter_all: "전체",
-                loading_data: "데이터 로딩중...",
-                no_livery: "리버리가 없습니다",
-                
+                loading_data: "데이터를 불러오는 중입니다...",
+                no_livery: "리버리가 없습니다.",
+                no_requests: "표시할 요청이 없습니다.",
+
                 // Modals
                 modal_download_title: "다운로드",
                 modal_warn_title: "경고",
-                modal_warn_desc: "이 파일의 <span class='font-medium text-black'>무단 수정 및 재배포를 엄격히 금지</span>합니다.<br>개인적인 용도로만 사용해주시기 바랍니다.",
+                modal_warn_desc: "이 파일의 <span class='font-medium text-black'>무단 수정 및 재배포는 엄격히 금지됩니다</span>.<br>개인 용도로만 사용해 주시기 바랍니다.",
                 modal_install_title: "설치 방법",
-                modal_install_desc: "1. 파일을 다운로드 후 압축을 해제하세요.<br>2. 폴더를 <span class='font-mono text-xs bg-gray-100 px-1 py-0.5 text-black'>Community</span> 경로에 넣으세요.",
-                modal_install_desc_oc3: "1. 파일을 다운로드 하세요.<br>2. <strong>PMDG Operation Center 3</strong> 실행 후 파일을 Import 하세요.",
-                btn_agree_download: "동의 및 다운로드",
+                modal_install_desc: "1. 파일을 다운로드한 뒤 압축을 해제해 주세요.<br>2. 폴더를 <span class='font-mono text-xs bg-gray-100 px-1 py-0.5 text-black'>Community</span> 폴더에 넣어 주세요.",
+                modal_install_desc_oc3: "1. 파일을 다운로드해 주세요.<br>2. <strong>PMDG Operation Center 3</strong>에서 Import 하시면 됩니다.",
+                btn_agree_download: "동의하고 다운로드",
 
-                // Request Notice (NEW)
-                modal_req_notice_title: "요청 전 확인사항",
-                modal_req_notice_desc: "리버리 요청이 접수되더라도 <strong>제작이 무조건 보장되는 것은 아님</strong>을 미리 양해 부탁드립니다.<br><br>또한, <strong>실제로 현역으로 운항 중인 기체 및 도장</strong>을 기준으로 신청해 주시기 바랍니다. 가상의 도장이나 퇴역 기체는 제작이 어려울 수 있습니다.",
+                // Request Notice
+                modal_req_notice_title: "요청 전 안내",
+                modal_req_notice_desc: "요청을 제출하셔도 제작이 보장되지는 않습니다.<br><strong>실제 항공사</strong> 기준으로 요청해 주시기 바라며, 가상/퇴역 도색은 제작이 어려울 수 있습니다.",
                 btn_understand: "확인 후 계속하기",
+                btn_return: "돌아가기",
 
                 modal_request_title: "리버리 요청",
-                req_required_hint: "* 표시는 필수 입력 사항입니다",
-                // Updated Numbering
+                req_required_hint: "* 표시는 필수 입력 항목입니다.",
                 req_label_sim: "1. 시뮬레이터 버전",
-                req_label_aircraft: "2. 기체 종류 (Aircraft Type)",
-                req_label_airline: "3. 항공사 (Airline Name)",
-                req_label_reg: "4. 등록 번호 (Aircraft Reg.)",
-                req_label_images: "5. 참고 이미지 (최소 1장, 최대 5장)",
+                req_label_category: "2. 기체 카테고리",
+                opt_pmdg_738: "PMDG 738",
+                opt_fenix_a320: "FENIX A320",
+                opt_fenix_a321: "FENIX A321",
+                req_label_config: "기체 구성 (선택)",
+                req_label_aircraft: "기체 종류 (세부 정보)",
+                req_label_airline: "3. 항공사명",
+                req_label_reg: "4. 등록 번호",
+                req_label_images: "5. 참고 이미지 (최소 1, 최대 5)",
                 req_label_desc: "6. 세부 사항",
-                btn_submit_request: "요청 제출하기",
+                ph_link_req: "이미지 링크 1 (필수) *",
+                ph_link_opt: "추가 이미지 링크 (선택)",
+                ph_details: "원하시는 세부 사항이 있으시면 작성해 주세요.",
+                btn_submit_request: "요청 제출",
 
+                req_status_title: "현재 요청 현황",
+                req_status_loading: "요청 현황을 불러오는 중입니다...",
+
+                chip_requested: "요청 완료",
+                chip_reviewed: "검토 완료",
+                chip_in_progress: "진행 중",
+                chip_rejected: "반려",
+
+                // Admin
                 modal_admin_title: "관리자 접속",
                 btn_login: "로그인",
 
                 dash_title: "관리자 대시보드",
-                dash_tab_req: "요청 목록",
-                dash_tab_liv: "리버리 관리",
+                dash_tab_req: "요청",
+                dash_tab_liv: "리버리",
+                dash_tab_settings: "설정",
                 dash_manage_liv: "리버리 관리",
+                dash_settings_title: "설정",
                 btn_add_livery: "새 리버리 추가",
                 btn_logout: "로그아웃",
 
                 modal_upload_title: "리버리 업로드",
-                modal_edit_title: "리버리 수정", // Added
+                modal_edit_title: "리버리 수정",
                 btn_upload: "업로드",
-                btn_update: "수정하기", // Added
-                btn_edit: "수정", // Added
+                btn_update: "수정하기",
+                btn_edit: "수정",
 
                 modal_del_title: "삭제 확인",
                 modal_del_desc: "정말 삭제하시겠습니까?<br>이 작업은 되돌릴 수 없습니다.",
@@ -707,49 +871,54 @@
                 btn_delete: "삭제",
 
                 // Dynamic Texts
-                ph_link_req: "이미지 링크 1 (필수) *",
-                ph_link_opt: "추가 이미지 링크 (선택)",
-                ph_details: "특별히 요청하고 싶은 디테일이 있나요?",
-                
                 toast_link_soon: "링크가 아직 준비되지 않았습니다.",
-                toast_ext_link_fail: "외부 링크가 준비되지 않았습니다.",
-                toast_fill_all: "필수 항목을 모두 입력해주세요.",
-                toast_saving: "저장 중...",
-                toast_req_success: "요청이 성공적으로 접수되었습니다!",
-                toast_enter_creds: "이메일과 비밀번호를 입력하세요.",
-                toast_admin_login: "관리자로 로그인되었습니다.",
+                toast_ext_link_fail: "외부 링크가 아직 준비되지 않았습니다.",
+                toast_db_fail: "데이터를 불러오지 못했습니다.",
+                toast_enter_creds: "이메일과 비밀번호를 입력해 주세요.",
                 toast_login_fail: "로그인 실패: ",
-                toast_logout: "로그아웃 되었습니다.",
-                toast_miss_fields: "필수 항목을 입력해주세요.",
-                toast_uploading: "업로드 중...",
-                toast_uploaded: "리버리가 업로드되었습니다!",
-                toast_upload_fail: "업로드 실패: ",
-                toast_deleted: "삭제되었습니다.",
-                toast_delete_fail: "삭제 실패: ",
-                toast_db_fail: "DB 연결 실패 또는 데이터 없음.",
+                toast_admin_login: "관리자로 로그인되었습니다.",
+                toast_logout: "로그아웃되었습니다.",
+                toast_fill_all: "필수 항목을 모두 입력해 주세요.",
+                toast_miss_fields: "필수 항목이 누락되었습니다.",
+                toast_requests_closed: "현재 리버리 요청이 마감되었습니다.",
+                toast_saving: "저장 중...",
+                toast_req_success: "요청이 접수되었습니다.",
                 toast_status_update: "상태가 업데이트되었습니다.",
-                toast_update_fail: "업데이트 실패: ",
+                toast_update_fail: "업데이트에 실패했습니다: ",
+                toast_uploading: "업로드 중...",
+                toast_uploaded: "리버리가 업로드되었습니다.",
+                toast_upload_fail: "업로드 실패: ",
+                toast_delete_fail: "삭제 실패: ",
+                toast_deleted: "삭제되었습니다.",
+                toast_settings_saved: "설정이 저장되었습니다.",
+                toast_settings_save_fail: "설정 저장에 실패했습니다: ",
 
+                // Settings
+                setting_request_open: "리버리 요청 받기",
+                setting_notice_enabled: "요청 안내 팝업 사용",
+                setting_notice_title: "안내 제목",
+                setting_notice_body: "안내 내용 (HTML 가능)",
+                setting_closed_title: "마감 제목",
+                setting_closed_body: "마감 안내 (HTML 가능)",
+                btn_save_settings: "설정 저장",
+
+                // Cards
+                card_download: "다운로드",
                 card_more_shots: "스크린샷 더보기",
-                card_download: "다운로드"
-                ,
-                req_status_title: "현재 요청 현황",
-                req_status_loading: "요청 현황을 불러오는 중입니다...",
-                chip_requested: "요청완료",
-                chip_reviewed: "확인완료",
-                chip_in_progress: "진행중",
-                chip_rejected: "반려",
-                req_label_category: "2. 기체 분류",
-                req_label_config: "Aircraft Configuration (선택)",
-                opt_pmdg_738: "PMDG 738",
-                opt_fenix_a320: "FENIX A320",
-                opt_fenix_a321: "FENIX A321"
-                ,
-                no_requests: "표시할 요청이 없습니다."
 
-
+                // Site Notice Popup (NEW)
+                setting_site_notice_enabled: "사이트 공지 팝업 사용",
+                setting_site_notice_title: "팝업 제목",
+                setting_site_notice_body: "팝업 내용 (HTML 가능)",
+                btn_publish_notice: "공지 발행",
+                toast_notice_published: "공지 팝업이 발행되었습니다.",
+                toast_notice_publish_fail: "공지 팝업 발행에 실패했습니다: ",
+                site_notice_dont_show: "다시 보지 않기",
+                btn_close: "닫기"
             }
         };
+
+
 
         let currentLang = 'en'; // Default
 
@@ -789,6 +958,9 @@
 
             // Refresh request status chip labels (if built)
             if(window.__refreshRequestStatusTabLabels) window.__refreshRequestStatusTabLabels();
+
+            // Refresh site notice popup content (if present)
+            if(window.__renderSiteNoticeContent) window.__renderSiteNoticeContent();
 
         };
 
@@ -1090,9 +1262,11 @@ window.loadRequestStatusPreview = async () => {
 };
 
 
-window.openRequestNotice = () => {
+window.openRequestNotice = async () => {
             document.getElementById('requestNoticeModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            // Apply admin-controlled notice/closed text
+            if (window.__applyNoticeTextFromSettings) await window.__applyNoticeTextFromSettings();
             // Load request status (staged) when the notice opens
             if (window.loadRequestStatusPreview) window.loadRequestStatusPreview();
         }
@@ -1335,7 +1509,19 @@ window.openRequestNotice = () => {
 
         window.closeModal = (modalId) => {
             const id = modalId || 'downloadModal';
+            // Site Notice: persist "don't show again"
+            if (id === 'siteNoticeModal') {
+                const modal = document.getElementById('siteNoticeModal');
+                const cb = document.getElementById('siteNoticeDontShow');
+                const v = modal?.dataset?.version || "0";
+                if (cb && cb.checked) {
+                    localStorage.setItem('siteNoticeDismissedVersion', String(v));
+                }
+                sessionStorage.setItem('siteNoticeSeenVersion', String(v));
+            }
+
             document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
             
             // Cleanups
             if (id === 'galleryModal') {
@@ -1362,7 +1548,7 @@ window.openRequestNotice = () => {
         // Render Logic
         const grid = document.getElementById('liveryGrid');
         const emptyState = document.getElementById('emptyState');
-        const buttons = { all: document.getElementById('btn-all'), pmdg738: document.getElementById('btn-pmdg738738'), fenixA320: document.getElementById('btn-fenixA320'), fenixA321: document.getElementById('btn-fenixA321A321') };
+        const buttons = { all: document.getElementById('btn-all'), pmdg738: document.getElementById('btn-pmdg738'), fenixA320: document.getElementById('btn-fenixA320'), fenixA321: document.getElementById('btn-fenixA321') };
 
         window.renderLiveries = (data) => {
             // No global assignment here to prevent overwriting master data
@@ -1544,6 +1730,14 @@ window.openRequestNotice = () => {
 
         // --- Auth & Functions Binding ---
         window.submitRequest = async () => {
+            // Gate: block submissions when requests are closed
+            if (window.getRequestSettings) {
+                const s = await window.getRequestSettings();
+                if (s && s.requestOpen === false) {
+                    window.showToast && window.showToast("toast_requests_closed", "normal");
+                    return;
+                }
+            }
             const simulator = document.getElementById('reqSim').value;
             const category = document.getElementById('reqCategory') ? document.getElementById('reqCategory').value : null;
             const aircraft = document.getElementById('reqAircraft').value.trim(); // optional details
@@ -1861,7 +2055,7 @@ window.loginAdmin = async () => {
                 window.loadAdminRequests();
             } catch(e) {
                 console.error(e);
-                window.showToast("업데이트 실패: " + e.message, "error", true);
+                window.showToast("업데이트에 실패했습니다: " + e.message, "error", true);
             }
         };
 
@@ -1872,7 +2066,7 @@ window.loginAdmin = async () => {
                 if(window.loadRequestStatusPreview) window.loadRequestStatusPreview();
             } catch(e) {
                 console.error(e);
-                window.showToast("업데이트 실패: " + e.message, "error", true);
+                window.showToast("업데이트에 실패했습니다: " + e.message, "error", true);
             }
         };
 
@@ -1936,21 +2130,325 @@ window.loginAdmin = async () => {
         }
 
         window.switchAdminTab = (tab) => {
-            document.getElementById('view-requests').classList.add('hidden');
-            document.getElementById('view-liveries').classList.add('hidden');
-            document.getElementById('tab-requests').classList.remove('active');
-            document.getElementById('tab-liveries').classList.remove('active');
-            
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.add('active');
+            const tabs = ['requests', 'liveries', 'settings'];
+            tabs.forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (view) view.classList.add('hidden');
+                if (btn) btn.classList.remove('active');
+            });
+
+            const activeView = document.getElementById(`view-${tab}`);
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeView) activeView.classList.remove('hidden');
+            if (activeBtn) activeBtn.classList.add('active');
 
             if(tab === 'requests') window.loadAdminRequests();
             if(tab === 'liveries') window.loadAdminLiveries();
+            if(tab === 'settings') window.loadRequestSettingsToUI && window.loadRequestSettingsToUI();
         }
+
+        // --- Request Settings (Request Open/Close + Notice text) ---
+        window.__requestSettingsCache = null;
+        window.__requestSettingsCacheAt = 0;
+
+        window.__getDefaultRequestSettings = () => {
+            const en = (typeof translations !== 'undefined' && translations.en) ? translations.en : {};
+            const ko = (typeof translations !== 'undefined' && translations.ko) ? translations.ko : {};
+            return {
+                requestOpen: true,
+                noticeEnabled: true,
+                noticeTitle: {
+                    en: en.modal_req_notice_title || "BEFORE REQUEST",
+                    ko: ko.modal_req_notice_title || "요청 전 확인사항"
+                },
+                noticeBody: {
+                    en: en.modal_req_notice_desc || "Please note that submitting a request does not guarantee its creation.",
+                    ko: ko.modal_req_notice_desc || "리버리 요청이 접수되더라도 제작이 무조건 보장되는 것은 아닙니다."
+                },
+                closedTitle: {
+                    en: "REQUESTS CLOSED",
+                    ko: "요청 마감"
+                },
+                closedBody: {
+                    en: "Requests are currently closed. Please come back later.",
+                    ko: "현재 리버리 요청이 마감되었습니다. 나중에 다시 방문해 주세요."
+                }
+                ,
+                // Site Notice Popup (NEW)
+                siteNoticeEnabled: false,
+                siteNoticeTitle: { en: "", ko: "" },
+                siteNoticeBody: { en: "", ko: "" },
+                siteNoticeVersion: 0
+
+            };
+        };
+
+        window.getRequestSettings = async (forceRefresh = false) => {
+            const now = Date.now();
+            if (!forceRefresh && window.__requestSettingsCache && (now - window.__requestSettingsCacheAt) < 15000) {
+                return window.__requestSettingsCache;
+            }
+            const defaults = window.__getDefaultRequestSettings();
+            try {
+                if (!window.db || !window.doc || !window.getDoc) {
+                    // Firebase not ready yet
+                    window.__requestSettingsCache = defaults;
+                    window.__requestSettingsCacheAt = now;
+                    return defaults;
+                }
+                const ref = window.doc(window.db, "settings", "request");
+                const snap = await window.getDoc(ref);
+                if (snap.exists()) {
+                    const data = snap.data() || {};
+                    const merged = {
+                        ...defaults,
+                        ...data,
+                        noticeTitle: { ...defaults.noticeTitle, ...(data.noticeTitle || {}) },
+                        noticeBody: { ...defaults.noticeBody, ...(data.noticeBody || {}) },
+                        closedTitle: { ...defaults.closedTitle, ...(data.closedTitle || {}) },
+                        closedBody: { ...defaults.closedBody, ...(data.closedBody || {}) },
+                    };
+                    window.__requestSettingsCache = merged;
+                    window.__requestSettingsCacheAt = now;
+                    return merged;
+                } else {
+                    // Create defaults once (merge)
+                    await window.setDoc(ref, defaults, { merge: true });
+                    window.__requestSettingsCache = defaults;
+                    window.__requestSettingsCacheAt = now;
+                    return defaults;
+                }
+            } catch (e) {
+                console.error("Failed to load request settings:", e);
+                window.__requestSettingsCache = defaults;
+                window.__requestSettingsCacheAt = now;
+                return defaults;
+            }
+        };
+
+        window.__updateToggleLabel = (idCheckbox, idLabel) => {
+            const cb = document.getElementById(idCheckbox);
+            const lb = document.getElementById(idLabel);
+            if (!cb || !lb) return;
+            lb.textContent = cb.checked ? "ON" : "OFF";
+        };
+
+        window.loadRequestSettingsToUI = async () => {
+            const s = await window.getRequestSettings();
+            const reqOpen = document.getElementById("settingRequestOpen");
+            const noticeOn = document.getElementById("settingNoticeEnabled");
+            if (reqOpen) reqOpen.checked = !!s.requestOpen;
+            if (noticeOn) noticeOn.checked = !!s.noticeEnabled;
+            const siteNoticeOn = document.getElementById("settingSiteNoticeEnabled");
+            if (siteNoticeOn) siteNoticeOn.checked = !!s.siteNoticeEnabled;
+
+
+            const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ""; };
+            setVal("settingNoticeTitleKo", s.noticeTitle?.ko);
+            setVal("settingNoticeBodyKo", s.noticeBody?.ko);
+            setVal("settingClosedTitleKo", s.closedTitle?.ko);
+            setVal("settingClosedBodyKo", s.closedBody?.ko);
+
+            setVal("settingNoticeTitleEn", s.noticeTitle?.en);
+            setVal("settingNoticeBodyEn", s.noticeBody?.en);
+            setVal("settingClosedTitleEn", s.closedTitle?.en);
+            setVal("settingClosedBodyEn", s.closedBody?.en);
+            setVal("settingSiteNoticeTitleKo", s.siteNoticeTitle?.ko);
+            setVal("settingSiteNoticeBodyKo", s.siteNoticeBody?.ko);
+            setVal("settingSiteNoticeTitleEn", s.siteNoticeTitle?.en);
+            setVal("settingSiteNoticeBodyEn", s.siteNoticeBody?.en);
+
+            window.__updateToggleLabel("settingSiteNoticeEnabled", "settingSiteNoticeEnabledLabel");
+
+
+            window.__updateToggleLabel("settingRequestOpen", "settingRequestOpenLabel");
+            window.__updateToggleLabel("settingNoticeEnabled", "settingNoticeEnabledLabel");
+            // Bind toggle label updates (including Site Notice)
+            const bind = (cbId, lbId) => {
+                const cb = document.getElementById(cbId);
+                if (!cb) return;
+                cb.onchange = () => window.__updateToggleLabel(cbId, lbId);
+            };
+            bind("settingRequestOpen", "settingRequestOpenLabel");
+            bind("settingNoticeEnabled", "settingNoticeEnabledLabel");
+            bind("settingSiteNoticeEnabled", "settingSiteNoticeEnabledLabel");
+
+
+            // bind once
+            if (!window.__settingsToggleBound) {
+                window.__settingsToggleBound = true;
+                ["settingRequestOpen","settingNoticeEnabled"].forEach(id=>{
+                    const cb=document.getElementById(id);
+                    if(cb) cb.addEventListener("change", ()=>window.__updateToggleLabel(id, id+"Label"));
+                });
+            }
+        };
+
+        window.saveRequestSettings = async () => {
+            try {
+                const getVal = (id) => (document.getElementById(id)?.value || "").trim();
+                const getChecked = (id) => !!document.getElementById(id)?.checked;
+
+                const payload = {
+                    requestOpen: getChecked("settingRequestOpen"),
+                    noticeEnabled: getChecked("settingNoticeEnabled"),
+                    noticeTitle: { ko: getVal("settingNoticeTitleKo"), en: getVal("settingNoticeTitleEn") },
+                    noticeBody: { ko: getVal("settingNoticeBodyKo"), en: getVal("settingNoticeBodyEn") },
+                    closedTitle: { ko: getVal("settingClosedTitleKo"), en: getVal("settingClosedTitleEn") },
+                    closedBody: { ko: getVal("settingClosedBodyKo"), en: getVal("settingClosedBodyEn") },
+                    updatedAt: window.serverTimestamp ? window.serverTimestamp() : null
+                };
+
+        // Publish Site Notice Popup (NEW)
+        window.saveSiteNoticeSettings = async () => {
+            try {
+                if (!window.db || !window.doc || !window.setDoc) throw new Error("Firebase not ready");
+                const getChecked = (id) => { const el = document.getElementById(id); return !!(el && el.checked); };
+                const getVal = (id) => { const el = document.getElementById(id); return (el ? (el.value || "") : ""); };
+
+                const payload = {
+                    siteNoticeEnabled: getChecked("settingSiteNoticeEnabled"),
+                    siteNoticeTitle: { ko: getVal("settingSiteNoticeTitleKo"), en: getVal("settingSiteNoticeTitleEn") },
+                    siteNoticeBody: { ko: getVal("settingSiteNoticeBodyKo"), en: getVal("settingSiteNoticeBodyEn") },
+                    siteNoticeVersion: Date.now(),
+                    updatedAt: window.serverTimestamp ? window.serverTimestamp() : null
+                };
+
+                const ref = window.doc(window.db, "settings", "request");
+                await window.setDoc(ref, payload, { merge: true });
+
+                // refresh cache
+                window.__requestSettingsCache = null;
+                await window.getRequestSettings(true);
+
+                // Update modal content for current language
+                if (window.__renderSiteNoticeContent) await window.__renderSiteNoticeContent();
+
+                window.showToast && window.showToast("toast_notice_published", "success");
+            } catch (e) {
+                console.error(e);
+                if (window.showToast) window.showToast((window.getText ? window.getText("toast_notice_publish_fail") : "Failed to publish popup notice: ") + (e.message || ""), "error", true);
+            }
+        };
+
+
+                if (!window.db || !window.doc || !window.setDoc) throw new Error("Firebase not ready");
+                const ref = window.doc(window.db, "settings", "request");
+                await window.setDoc(ref, payload, { merge: true });
+
+                // refresh cache
+                window.__requestSettingsCache = null;
+                await window.getRequestSettings();
+
+                window.showToast && window.showToast("toast_settings_saved", "success");
+            } catch (e) {
+                console.error(e);
+                if (window.showToast) window.showToast(window.getText ? (window.getText("toast_settings_save_fail") + (e.message || "")) : ("Save failed: " + (e.message || "")), "error", true);
+            }
+        };
+
+        window.__applyNoticeTextFromSettings = async () => {
+            const s = await window.getRequestSettings();
+            const lang = (typeof currentLang !== 'undefined') ? currentLang : "en";
+
+            const titleEl = document.querySelector('#requestNoticeModal [data-i18n="modal_req_notice_title"]');
+            const descEl = document.querySelector('#requestNoticeModal [data-i18n="modal_req_notice_desc"]');
+            const btn = document.querySelector('#requestNoticeModal button[onclick="proceedToRequest()"]');
+            const btnReturn = document.getElementById('btnReturnFromNotice');
+
+            if (!titleEl || !descEl || !btn) return;
+            if (!btnReturn) return;
+
+            if (!s.requestOpen) {
+                titleEl.innerHTML = (lang === "ko" ? (s.closedTitle?.ko || "요청 마감") : (s.closedTitle?.en || "REQUESTS CLOSED"));
+                descEl.innerHTML = (lang === "ko" ? (s.closedBody?.ko || "현재 리버리 요청이 마감되었습니다.") : (s.closedBody?.en || "Requests are currently closed."));
+                btn.classList.add("hidden");
+                btnReturn.classList.remove("hidden");
+                return;
+            }
+
+            // open
+            btn.classList.remove("hidden");
+            btnReturn.classList.add("hidden");
+
+            if (s.noticeEnabled) {
+                titleEl.innerHTML = (lang === "ko" ? (s.noticeTitle?.ko || window.getText?.("modal_req_notice_title") || "요청 전 확인사항") : (s.noticeTitle?.en || window.getText?.("modal_req_notice_title") || "BEFORE REQUEST"));
+                descEl.innerHTML = (lang === "ko" ? (s.noticeBody?.ko || window.getText?.("modal_req_notice_desc") || "") : (s.noticeBody?.en || window.getText?.("modal_req_notice_desc") || ""));
+            } else {
+                // fallback to translations
+                titleEl.innerHTML = window.getText ? window.getText("modal_req_notice_title") : (lang==="ko"?"요청 전 확인사항":"BEFORE REQUEST");
+                descEl.innerHTML = window.getText ? window.getText("modal_req_notice_desc") : "";
+            }
+        };
+
+        // Site Notice Popup helpers (NEW)
+        window.__renderSiteNoticeContent = async () => {
+            const modal = document.getElementById("siteNoticeModal");
+            if (!modal) return;
+            const s = await window.getRequestSettings();
+            const lang = (typeof currentLang !== "undefined") ? currentLang : "en";
+            const titleEl = document.getElementById("siteNoticeTitle");
+            const bodyEl = document.getElementById("siteNoticeBody");
+
+            const title = (lang === "ko" ? (s.siteNoticeTitle?.ko || "") : (s.siteNoticeTitle?.en || ""));
+            const body = (lang === "ko" ? (s.siteNoticeBody?.ko || "") : (s.siteNoticeBody?.en || ""));
+
+            if (titleEl) titleEl.innerHTML = title || "NOTICE";
+            if (bodyEl) bodyEl.innerHTML = body || "";
+            modal.dataset.version = String(s.siteNoticeVersion || 0);
+        };
+
+        window.__applySiteNoticeFromSettings = async (force = false) => {
+            const s = await window.getRequestSettings(true);
+            if (!s || !s.siteNoticeEnabled) return;
+
+            const version = String(s.siteNoticeVersion || 0);
+            const dismissed = localStorage.getItem("siteNoticeDismissedVersion");
+            const seen = sessionStorage.getItem("siteNoticeSeenVersion");
+
+            if (!force) {
+                if (dismissed && dismissed === version) return;
+                if (seen && seen === version) return;
+            }
+
+            const lang = (typeof currentLang !== "undefined") ? currentLang : "en";
+            const title = (lang === "ko" ? (s.siteNoticeTitle?.ko || "") : (s.siteNoticeTitle?.en || ""));
+            const body = (lang === "ko" ? (s.siteNoticeBody?.ko || "") : (s.siteNoticeBody?.en || ""));
+
+            if (!title && !body) return;
+
+            const modal = document.getElementById("siteNoticeModal");
+            if (!modal) return;
+
+            await window.__renderSiteNoticeContent();
+
+            const cb = document.getElementById("siteNoticeDontShow");
+            if (cb) cb.checked = false;
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            document.body.style.overflow = "hidden";
+
+            sessionStorage.setItem("siteNoticeSeenVersion", version);
+        };
+
+        window.initSiteNotice = async () => {
+            // Retry a few times in case Firebase is not ready yet.
+            let attempt = 0;
+            const run = async () => {
+                attempt++;
+                try { await window.__applySiteNoticeFromSettings(false); } catch(e) {}
+                if (attempt < 8) setTimeout(run, 600);
+            };
+            run();
+        };
+
 
         // Start App
         window.setLanguage('en'); // Initialize text on load (Fix for empty notice)
         loadLiveries();
+        if (window.initSiteNotice) window.initSiteNotice();
     </script>
 </body>
 </html>

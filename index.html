@@ -193,6 +193,12 @@
             font-size: 0.75rem;
             margin: 0 4px;
         }
+        .timer-color-ready {
+            color: #16a34a;
+        }
+        .timer-color-active {
+            color: #2563eb;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col pt-24 selection:bg-black selection:text-white">
@@ -2444,11 +2450,59 @@ window.loginAdmin = async () => {
             run();
         };
 
+        window.__getTimerElement = () => {
+            return document.querySelector('[data-timer-role="display"]') || document.getElementById('timerDisplay');
+        };
+
+        window.setTimerReady = () => {
+            const el = window.__getTimerElement();
+            if (!el) return;
+            el.classList.add('timer-color-ready');
+            el.classList.remove('timer-color-active');
+            el.dataset.timerState = 'ready';
+        };
+
+        window.setTimerRunning = () => {
+            const el = window.__getTimerElement();
+            if (!el) return;
+            if (el.classList.contains('timer-color-ready')) {
+                el.classList.remove('timer-color-ready');
+                el.classList.add('timer-color-active');
+            }
+            el.dataset.timerState = 'running';
+        };
+
+        window.handleTimerReadyToggle = () => {
+            const el = window.__getTimerElement();
+            if (!el) return;
+            const isReady = el.classList.contains('timer-color-ready');
+            if (isReady) {
+                window.setTimerRunning();
+            } else {
+                window.setTimerReady();
+            }
+        };
+
+        window.bindTimerHotkeys = () => {
+            if (window.__timerHotkeysBound) return;
+            window.__timerHotkeysBound = true;
+            window.addEventListener('keydown', (event) => {
+                if (event.code !== 'Space') return;
+                const target = event.target;
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+                    return;
+                }
+                event.preventDefault();
+                window.handleTimerReadyToggle();
+            });
+        };
+
 
         // Start App
         window.setLanguage('en'); // Initialize text on load (Fix for empty notice)
         loadLiveries();
         if (window.initSiteNotice) window.initSiteNotice();
+        window.bindTimerHotkeys();
     </script>
 </body>
 </html>
